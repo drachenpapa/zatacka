@@ -1,55 +1,110 @@
 package de.drachenpapa.zatacka.engine;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.awt.Color;
 
 /**
- * Represents a player in the Zatacka game, with attributes such as name, color, controls, and the curve they control.
- * Lombok is used to generate boilerplate code like getters, setters, and constructors.
+ * The {@code Player} class represents a player in the Zatacka game.
+ * Each player controls a curve and interacts with the game environment through keyboard inputs.
+ * This class models a player's essential properties like their name, control keys, and curve.
  *
  * @author Henning Steinberg (@drachenpapa)
  * @version 1.0
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Player {
 
-    private boolean client;           // Indicates if the player is a client in multiplayer
-    private Color color;              // The color of the player's curve
-    private Curve curve;              // The curve controlled by the player
-    private char leftControl;         // The left control key assigned to the player
-    private String name;              // The name of the player
-    private char rightControl;        // The right control key assigned to the player
-    private boolean leftPressed;      // Indicates if the left control key is currently pressed
-    private boolean rightPressed;     // Indicates if the right control key is currently pressed
+    /** Color representing the player's curve. */
+    @Getter
+    private final Color color;
+
+    /** The player's curve which moves and interacts in the game. */
+    @Setter
+    @Getter
+    private Curve curve;
+
+    /** Key used for turning the curve to the left. */
+    @Getter
+    private final char leftKey;
+
+    /** Key used for turning the curve to the right. */
+    @Getter
+    private final char rightKey;
+
+    /** Name of the player. */
+    @Getter
+    private final String playerName;
+
+    /** Tracks whether the left key is currently pressed. */
+    private boolean isLeftKeyPressed = false;
+
+    /** Tracks whether the right key is currently pressed. */
+    private boolean isRightKeyPressed = false;
 
     /**
-     * Initializes a player with a random curve.
+     * Constructs a new {@code Player} with specified name, color, and control keys.
+     * The initial position and direction of the player's curve are randomly generated.
+     *
+     * @param playerName  Name of the player.
+     * @param color       Color of the player's curve.
+     * @param leftKey     Key for turning the curve left.
+     * @param rightKey    Key for turning the curve right.
      */
-    public Player(String name, Color color, char leftControl, char rightControl, boolean client) {
-        this.client = client;
+    public Player(String playerName, Color color, char leftKey, char rightKey) {
+        this.playerName = playerName;
         this.color = color;
-        this.leftControl = leftControl;
-        this.name = name;
-        this.rightControl = rightControl;
+        this.leftKey = leftKey;
+        this.rightKey = rightKey;
         this.curve = createRandomCurve();
     }
 
     /**
-     * Creates a curve with random initial position, direction, and time interval.
+     * Generates a random curve with a random initial position and direction.
      *
      * @return A new Curve instance with random parameters.
      */
     private Curve createRandomCurve() {
-        double xPos = Math.round(Math.random() * ZatackaEngine.WIDTH) + 100;
-        double yPos = Math.round(Math.random() * ZatackaEngine.HEIGHT) + 100;
+        double xPosition = Math.random() * ZatackaEngine.SCREEN_WIDTH + 100;
+        double yPosition = Math.random() * ZatackaEngine.SCREEN_HEIGHT + 100;
         double direction = Math.random() * 360;
-        long time = Math.round(Math.random() * 10) + 1;
+        int size = (int) (Math.random() * 10) + 1;
+        return new Curve(xPosition, yPosition, direction, size);
+    }
 
-        return new Curve(xPos, yPos, direction, time);
+    /**
+     * Checks if the left key is currently pressed by the player.
+     *
+     * @return {@code true} if the left key is pressed, otherwise {@code false}.
+     */
+    public boolean isLeftKeyPressed() {
+        return isLeftKeyPressed;
+    }
+
+    /**
+     * Sets the state of the left key being pressed or released.
+     *
+     * @param isLeftKeyPressed {@code true} if the left key is pressed, otherwise {@code false}.
+     */
+    public void setLeftKeyPressed(boolean isLeftKeyPressed) {
+        this.isLeftKeyPressed = isLeftKeyPressed;
+    }
+
+    /**
+     * Checks if the right key is currently pressed by the player.
+     *
+     * @return {@code true} if the right key is pressed, otherwise {@code false}.
+     */
+    public boolean isRightKeyPressed() {
+        return isRightKeyPressed;
+    }
+
+    /**
+     * Sets the state of the right key being pressed or released.
+     *
+     * @param isRightKeyPressed {@code true} if the right key is pressed, otherwise {@code false}.
+     */
+    public void setRightKeyPressed(boolean isRightKeyPressed) {
+        this.isRightKeyPressed = isRightKeyPressed;
     }
 }

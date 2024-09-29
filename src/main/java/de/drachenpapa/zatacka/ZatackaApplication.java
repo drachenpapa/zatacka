@@ -1,6 +1,6 @@
 package de.drachenpapa.zatacka;
 
-import de.drachenpapa.zatacka.dialogs.PreDialog;
+import de.drachenpapa.zatacka.dialogs.prenew;
 
 /**
  * Entry point for the Zatacka game application.
@@ -17,6 +17,6 @@ public class ZatackaApplication {
      * @param args Command-line arguments (not used).
      */
     public static void main(String[] args) {
-        new PreDialog();
+        new prenew();
     }
 }

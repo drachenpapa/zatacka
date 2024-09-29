@@ -202,7 +202,7 @@ public class GameSettingsPanel extends JFrame {
         return maxPlayers;
     }
 
-    public void generatePlayers(JButton[] colors, boolean client) {
+    public void generatePlayers(JButton[] colors) {
         int checkedCount = getChecks(checks, maxPlayers);
         players = new Player[checkedCount];
         int y = 0;
@@ -213,8 +213,7 @@ public class GameSettingsPanel extends JFrame {
                         textFields[i].getText(),
                         colors[i].getBackground(),
                         leftButtonKeys[i],
-                        rightButtonKeys[i],
-                        client
+                        rightButtonKeys[i]
                 );
             }
         }

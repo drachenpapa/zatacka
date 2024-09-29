@@ -1,300 +1,359 @@
 package de.drachenpapa.zatacka.engine;
 
 import lombok.Getter;
-
 import java.awt.*;
 import javax.swing.*;
 import java.awt.image.*;
 
 /**
- * This class represents the main game engine for Zatacka.
- * It controls the display, logic, and the game loop.
+ * ZatackaEngine is responsible for managing the game loop, game state, and
+ * rendering the game field and players' curves. It implements the core mechanics
+ * of the game and interacts with the Player and Statistics classes to manage
+ * player actions and track scores.
  *
- * Author: Henning Steinberg (@drachenpapa)
- * Version: 1.0
+ * @author Henning Steinberg (@drachenpapa)
+ * @version 1.0
  */
 public class ZatackaEngine extends Canvas implements Runnable {
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 600;
-    private static final int G_WIDTH = 676;
-    private static final int G_HEIGHT = 594;
-    private static final int CURVE_SIZE = 4;
-
-    private boolean[][] field = new boolean[G_HEIGHT][G_WIDTH];
-    @Getter
-    private final Player[] players;
-    private final Statistics statistics;
-
-    private boolean nextRound = false;
-    private boolean started = true;
-    private boolean running = true;
-    private boolean ended = false;
-
-    private final int speed;
-    private final int maxScore;
-
-    private final Thread gameThread;
-    private JFrame frame;
-    private DisplayMode oldDisplayMode;
 
     /**
-     * Constructs a ZatackaEngine instance that controls the display and game logic.
+     * The width of the game screen in pixels.
+     */
+    public static final int SCREEN_WIDTH = 800;
+
+    /**
+     * The height of the game screen in pixels.
+     */
+    public static final int SCREEN_HEIGHT = 600;
+
+    /**
+     * The width of the game field (the area where the game takes place).
+     */
+    private final int GAME_WIDTH = 676;
+
+    /**
+     * The height of the game field.
+     */
+    private final int GAME_HEIGHT = 594;
+
+    /**
+     * A 2D boolean array representing the game field. Each cell stores whether
+     * part of a curve occupies that position.
+     */
+    private boolean[][] gameField = new boolean[GAME_HEIGHT][GAME_WIDTH];
+
+    /**
+     * The players participating in the game.
+     */
+    @Getter
+    private final Player[] players;
+
+    /**
+     * Statistics instance that tracks players' scores and status.
+     */
+    private final Statistics statistics;
+
+    /**
+     * Flag to indicate if the next round should start.
+     */
+    private volatile boolean isNextRound = false;
+
+    /**
+     * Flag to indicate if the game has just started.
+     */
+    private volatile boolean isGameStarted = true;
+
+    /**
+     * Flag to control the main game loop.
+     */
+    private volatile boolean isGameRunning = true;
+
+    /**
+     * Flag to indicate if the game has ended.
+     */
+    private volatile boolean isGameEnded = false;
+
+    /**
+     * The speed of the game, which determines how fast the game loop runs.
+     */
+    private final int gameSpeed;
+
+    /**
+     * The maximum score a player can reach before the game ends.
+     */
+    private final int maxScore;
+
+    /**
+     * The JFrame that displays the game.
+     */
+    private final JFrame gameFrame;
+
+    /**
+     * The original display mode before the game changes the screen resolution.
+     */
+    private final DisplayMode originalDisplayMode;
+
+    /**
+     * Constructor for the ZatackaEngine. It initializes the game settings, players,
+     * and sets up the JFrame for rendering the game.
      *
-     * @param players An array of Player objects representing the players.
-     * @param speed The speed of the game.
+     * @param players The array of players participating in the game.
+     * @param speed   The speed of the game (1-5, with 1 being the slowest).
      */
     public ZatackaEngine(Player[] players, int speed) {
-        setupFrame();
-        this.players = players;
-        this.statistics = new Statistics(players.length);
-        this.speed = 10 * (6 - speed);
-        this.maxScore = (players.length - 1) * 10;
-
-        gameThread = new Thread(this);
-        gameThread.start();
-    }
-
-    private void setupFrame() {
-        setBounds(0, 0, WIDTH, HEIGHT);
+        setBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         setBackground(Color.black);
-        frame = new JFrame();
-        frame.setUndecorated(true);
-        JPanel panel = (JPanel) frame.getContentPane();
+
+        gameFrame = new JFrame();
+        gameFrame.setUndecorated(true);
+        JPanel panel = (JPanel) gameFrame.getContentPane();
         panel.setLayout(null);
         panel.add(this);
 
-        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice device = env.getDefaultScreenDevice();
-        device.setFullScreenWindow(frame);
-        oldDisplayMode = device.getDisplayMode();
-        device.setDisplayMode(new DisplayMode(WIDTH, HEIGHT, oldDisplayMode.getBitDepth(), oldDisplayMode.getRefreshRate()));
+        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        device.setFullScreenWindow(gameFrame);
 
-        BufferedImage cursorImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
-        setCursor(getToolkit().createCustomCursor(cursorImage, new Point(0, 0), ""));
+        originalDisplayMode = device.getDisplayMode();
+        DisplayMode newMode = new DisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, originalDisplayMode.getBitDepth(), originalDisplayMode.getRefreshRate());
+        if (device.isDisplayChangeSupported()) {
+            device.setDisplayMode(newMode);
+        }
 
-        frame.setVisible(true);
-        frame.addKeyListener(new GameInputHandler(this));
+        BufferedImage cursorImg = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+        setCursor(getToolkit().createCustomCursor(cursorImg, new Point(0, 0), ""));
+
+        gameFrame.setVisible(true);
+        gameFrame.addKeyListener(new GameInputHandler(this));
+
+        this.players = players;
+        this.statistics = new Statistics(players.length);
+        this.gameSpeed = 10 * (6 - speed);
+        this.maxScore = (players.length - 1) * 10;
+
+        Thread gameThread = new Thread(this);
+        gameThread.start();
     }
 
     /**
-     * Restores the graphical settings and closes the application.
+     * Quits the game by stopping the game loop and resetting the screen resolution
+     * to its original state.
      */
-    public void quit() {
-        running = false;
-        GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setDisplayMode(oldDisplayMode);
-        frame.dispose();
-        System.exit(0);
+    public void quitGame() {
+        isGameRunning = false;
+        GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setDisplayMode(originalDisplayMode);
+        gameFrame.dispose();
     }
 
     /**
-     * Starts a new round by resetting the game field and player curves.
+     * Starts the next round by resetting the game field and repositioning all
+     * players randomly.
      */
-    public void nextRound() {
-        field = new boolean[G_HEIGHT][G_WIDTH];
+    public void startNextRound() {
+        gameField = new boolean[GAME_HEIGHT][GAME_WIDTH];
 
         for (Player player : players) {
             player.setCurve(new Curve(
-                    Math.round(Math.random() * ZatackaEngine.WIDTH) + 100,
-                    Math.round(Math.random() * ZatackaEngine.HEIGHT) + 100,
+                    (int) (Math.random() * ZatackaEngine.SCREEN_WIDTH) + 100,
+                    (int) (Math.random() * ZatackaEngine.SCREEN_HEIGHT) + 100,
                     Math.random() * 360,
-                    Math.round(Math.random() * 10) + 1
-            ));
+                    (int) (Math.random() * 10) + 1)
+            );
         }
 
         statistics.setAllAlive();
     }
 
     /**
-     * Checks if the given curve has a collision with the game boundaries.
+     * Checks if a player's curve has collided with another curve or the game
+     * boundaries. If a collision is detected, the player is marked as dead.
      *
-     * @param curve The curve to check for collisions.
-     * @return True if there is a collision, false otherwise.
+     * @param curve The curve of the player to check for collisions.
+     * @return True if a collision occurred, false otherwise.
      */
-    public boolean isCollision(Curve curve) {
-        double xPos = curve.getXPos();
-        double yPos = curve.getYPos();
+    public boolean checkCollision(Curve curve) {
+        int x = curve.getXPosition();
+        int y = curve.getYPosition();
+        int boundary = 4;
 
-        if (xPos >= G_WIDTH - CURVE_SIZE) {
-            curve.setXPos(CURVE_SIZE);
-        } else if (xPos <= CURVE_SIZE) {
-            curve.setXPos(G_WIDTH - CURVE_SIZE);
-        }
+        if (x >= GAME_WIDTH - boundary) curve.setXPosition(boundary);
+        if (x <= boundary) curve.setXPosition(GAME_WIDTH - boundary);
+        if (y >= GAME_HEIGHT - boundary) curve.setYPosition(boundary);
+        if (y <= boundary) curve.setYPosition(GAME_HEIGHT - boundary);
 
-        if (yPos >= G_HEIGHT - CURVE_SIZE) {
-            curve.setYPos(CURVE_SIZE);
-        } else if (yPos <= CURVE_SIZE) {
-            curve.setYPos(G_HEIGHT - CURVE_SIZE);
-        }
-
-        return checkCol(curve);
+        return detectCurveCollision(curve);
     }
 
     /**
-     * Checks whether the given curve collides with another curve.
+     * Detects if a player's curve collides with another curve by checking the
+     * 2D game field.
      *
-     * @param curve The curve to check for collisions.
-     * @return True if there is a collision, false otherwise.
+     * @param curve The player's curve to check.
+     * @return True if the curve collides with another curve, false otherwise.
      */
-    public boolean checkCol(Curve curve) {
-        double xPos = curve.getXPos();
-        double yPos = curve.getYPos();
+    public boolean detectCurveCollision(Curve curve) {
+        int x = curve.getXPosition();
+        int y = curve.getYPosition();
+        int size = 4;
 
-        try {
-            for (double y = yPos; y < (yPos + CURVE_SIZE); y++) {
-                for (double x = xPos; x < (xPos + CURVE_SIZE); x++) {
-                    if (field[(int)y][(int)x]) {
-                        return true;
-                    }
-                    field[(int)y][(int)x] = true;
+        if (x < 0 || x + size >= GAME_WIDTH || y < 0 || y + size >= GAME_HEIGHT) {
+            return true;
+        }
+
+        for (int i = y; i < y + size; i++) {
+            for (int j = x; j < x + size; j++) {
+                if (gameField[i][j]) {
+                    return true;
                 }
+                gameField[i][j] = true;
             }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            // Handle out-of-bounds gracefully
         }
         return false;
     }
 
     /**
-     * Represents the game loop that runs continuously while the game is active.
+     * Main game loop that updates the game state, processes player input, and
+     * renders the game. It runs continuously while the game is active.
      */
+    @Override
     public void run() {
-        while (running || ended) {
+        while (isGameRunning || isGameEnded) {
             try {
-                Thread.sleep(speed);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                Thread.sleep(gameSpeed);
+            } catch (InterruptedException ignored) {
             }
 
             for (Player player : players) {
                 player.getCurve().move();
 
-                if (player.isLeftPressed()) {
-                    player.getCurve().moveLeft();
-                } else if (player.isRightPressed()) {
-                    player.getCurve().moveRight();
+                if (player.isLeftKeyPressed()) {
+                    player.getCurve().turnLeft();
+                } else if (player.isRightKeyPressed()) {
+                    player.getCurve().turnRight();
                 }
             }
 
-            repaint();
+            paint(getGraphics());
         }
     }
 
     /**
-     * Draws the entire game interface, including the playing field and scores.
+     * Draws the game field, which includes the game boundary and the area where
+     * the curves will be drawn.
      *
-     * @param g The Graphics object to draw on.
+     * @param g The Graphics context to draw on.
      */
-    @Override
-    public void paint(Graphics g) {
-        if (nextRound) {
-            nextRound();
-            nextRound = false;
-            started = true;
-            sleep();
-        } else if (ended) {
-            drawStatistics(g);
-            ended = false;
-        } else if (started) {
-            drawField(g);
-            drawScores(g);
-            started = false;
-            running = true;
-        } else if (running) {
-            drawCurves(g);
-        }
-    }
-
-    private void sleep() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    /**
-     * Draws the game field, including the frame and the play area.
-     *
-     * @param g The Graphics object to draw on.
-     */
-    public void drawField(Graphics g) {
+    public void drawGameField(Graphics g) {
         g.setColor(Color.white);
-        g.fillRect(0, 0, WIDTH, HEIGHT);
+        g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
         g.setColor(Color.black);
-        g.fillRect(3, 3, G_WIDTH, G_HEIGHT);
+        g.fillRect(3, 3, GAME_WIDTH, GAME_HEIGHT);
     }
 
     /**
-     * Draws all active curves on the game field.
+     * Draws the curves of all players on the game field. It checks for collisions
+     * and updates the game state accordingly.
      *
-     * @param g The Graphics object to draw on.
+     * @param g The Graphics context to draw on.
      */
     public void drawCurves(Graphics g) {
         for (int i = 0; i < players.length; i++) {
             Player player = players[i];
-            g.setColor(player.getColor());
+            Curve curve = player.getCurve();
+            if (curve.isAlive() && !curve.isGeneratingGap()) {
+                g.setColor(player.getColor());
 
-            if (!player.getCurve().isDead() && !player.getCurve().hasHole()) {
-                if (isCollision(player.getCurve())) {
-                    player.getCurve().kill();
-                    statistics.setDead(i);
+                if (checkCollision(curve)) {
+                    curve.markAsDead();
+                    statistics.setPlayerDead(i);
                     statistics.increasePoints(players);
                     drawScores(g);
                 } else {
-                    g.fillRect((int) player.getCurve().getXPos(), (int) player.getCurve().getYPos(), CURVE_SIZE, CURVE_SIZE);
+                    int x = curve.getXPosition();
+                    int y = curve.getYPosition();
+                    g.fillRect(x, y, 4, 4);
                 }
             }
         }
-        g.setColor(Color.black);
     }
 
     /**
-     * Draws the scores of all players on the game interface.
+     * Draws the score panel on the side of the game screen, showing the current
+     * points of each player.
      *
-     * @param g The Graphics object to draw on.
+     * @param g The Graphics context to draw on.
      */
     public void drawScores(Graphics g) {
         g.setColor(Color.gray);
-        g.fillRect(682, 3, 115, G_HEIGHT);
-        int[] points = statistics.getPoints();
+        g.fillRect(682, 3, 115, GAME_HEIGHT);
+
+        int[] scores = statistics.getScores();
 
         for (int i = 0; i < players.length; i++) {
-            Player player = players[i];
-            g.setColor(player.getColor());
+            g.setColor(players[i].getColor());
             g.setFont(new Font("SANS_SERIF", Font.BOLD, 16));
-            g.drawString(player.getName(), 690, 30 + (i * 50));
-            g.drawString(points[i] + " pts", 690, 50 + (i * 50));
+            g.drawString(players[i].getPlayerName(), 690, 30 + (i * 50));
+            g.drawString(scores[i] + " pts", 690, 50 + (i * 50));
 
-            if (points[i] >= maxScore) {
-                ended = true;
-                running = false;
+            if (scores[i] >= maxScore) {
+                isGameEnded = true;
+                isGameRunning = false;
             }
         }
 
-        if (statistics.getPlayersAlive() == 1) {
-            nextRound = true;
+        if (statistics.getAlivePlayerCount() == 1) {
+            isNextRound = true;
         }
     }
 
     /**
-     * Draws the statistics at the end of the game.
+     * Draws the final scores of all players when the game ends.
      *
-     * @param g The Graphics object to draw on.
+     * @param g The Graphics context to draw on.
      */
-    public void drawStatistics(Graphics g) {
-        int[] ranking = statistics.getPoints();
+    public void drawFinalStatistics(Graphics g) {
+        int[] finalScores = statistics.getScores();
         g.setColor(Color.black);
-        g.fillRect(0, 0, WIDTH, HEIGHT);
+        g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
         g.setColor(Color.white);
         g.setFont(new Font("SANS_SERIF", Font.BOLD, 72));
-        g.drawString(" Scoreboard", 200, 100);
+        g.drawString("Final Scores", 200, 100);
 
         for (int i = 0; i < players.length; i++) {
-            Player player = players[i];
-            g.setColor(player.getColor());
+            g.setColor(players[i].getColor());
             g.setFont(new Font("SANS_SERIF", Font.BOLD, 36));
-            g.drawString(player.getName(), 200, 175 + (i * 75));
-            g.drawString(ranking[i] + " pts", 500, 175 + (i * 75));
+            g.drawString(players[i].getPlayerName(), 200, 175 + (i * 75));
+            g.drawString(finalScores[i] + " pts", 500, 175 + (i * 75));
+        }
+    }
+
+    /**
+     * Renders the game depending on the current state of the game (e.g., starting
+     * a new round, running the game, or displaying the final statistics).
+     *
+     * @param g The Graphics context to draw on.
+     */
+    @Override
+    public void paint(Graphics g) {
+        if (isNextRound) {
+            startNextRound();
+            isNextRound = false;
+            isGameStarted = true;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
+        } else if (isGameEnded) {
+            drawFinalStatistics(g);
+            isGameEnded = false;
+        } else if (isGameStarted) {
+            drawGameField(g);
+            drawScores(g);
+            isGameStarted = false;
+            isGameRunning = true;
+        } else if (isGameRunning) {
+            drawCurves(g);
         }
     }
 }

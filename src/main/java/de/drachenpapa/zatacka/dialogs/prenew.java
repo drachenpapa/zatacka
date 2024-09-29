@@ -11,7 +11,7 @@ import java.awt.event.*;
  * @author Henning Steinberg (@drachenpapa)
  * @version 1.0
  */
-public class PreDialog extends JFrame implements ActionListener {
+public class prenew extends JFrame implements ActionListener {
     private JButton local, server, join;
     private JPanel panel;
 
@@ -19,7 +19,7 @@ public class PreDialog extends JFrame implements ActionListener {
      * Constructs the pre-dialog for Zatacka.
      * Initializes the GUI components and sets up the frame.
      */
-    public PreDialog() {
+    public prenew() {
         super("Zatacka");
         initializeUI();
         setupFrame();

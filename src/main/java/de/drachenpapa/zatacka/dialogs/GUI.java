@@ -1,12 +1,13 @@
-// GUI-Oberklasse für Zatacka-GUI's
-// Henning Wrede, Matthias Junge & René Marksteiner
+// GUI-Oberklasse fï¿½r Zatacka-GUI's
+// Henning Wrede, Matthias Junge & Renï¿½ Marksteiner
 
-package de.neusta.dialogs;
+package de.drachenpapa.zatacka.dialogs;
+
+import de.drachenpapa.zatacka.engine.Player;
 
 import java.awt.*;
 import java.util.*;
 import javax.swing.*;
-import de.neusta.game.*;
 import java.io.*;
 
 	/**
@@ -31,7 +32,7 @@ public class GUI extends JFrame
 	protected char[] defaultrbutton_keys;
 	protected char[] defaultlbutton_keys; 
 	protected String[] keys;
-	protected Spieler[] spieler;
+	protected Player[] player;
 	protected String[] names;
 	private JPanel pannel;
 	private Properties options;
@@ -295,13 +296,13 @@ public class GUI extends JFrame
 		return max_players;
 	}
 	
-	public void generatePlayers( JButton[] colors, boolean client )
+	public void generatePlayers(JButton[] colors)
 	{
-		spieler = new Spieler[getChecks(checks, max_players)];
+		player = new Player[getChecks(checks, max_players)];
 		int y = 0;
 		for ( int i = 0; i < max_players; i++ ){
 			if ( checks[i].isSelected() ){
-				spieler[y] =  new Spieler(textfields[i].getText(), colors[i].getBackground(), lbutton_keys[i], rbutton_keys[i], client) ;
+				player[y] =  new Player(textfields[i].getText(), colors[i].getBackground(), lbutton_keys[i], rbutton_keys[i]) ;
 				y += 1;
 			}
 		}
@@ -311,8 +312,8 @@ public class GUI extends JFrame
 	 * Getting the object spieler.
 	 * @return The object spieler.
 	 */
-	public Spieler[] getPlayers()
+	public Player[] getPlayers()
 	{
-		return spieler;
+		return player;
 	}
 }

@@ -5,71 +5,83 @@ import lombok.Getter;
 import java.util.Arrays;
 
 /**
- * This class creates statistics including scores and status of all players.
+ * The {@code Statistics} class tracks player scores and their alive status throughout the game.
+ * It provides methods for updating and retrieving player data, such as scores and whether they are still alive.
+ * This class helps manage game progression and determine game results.
  *
  * @author Henning Steinberg (@drachenpapa)
  * @version 1.0
  */
 public class Statistics {
-    /** The scores of each player. */
-    @Getter
-    private final int[] points;
 
-    /** The status of each player (alive or dead). */
+    /** Array storing the current scores of each player. */
+    @Getter
+    private final int[] scores;
+
+    /** Array indicating the alive status of each player. */
     private final boolean[] playersAlive;
 
     /**
-     * Constructs a Statistics object for a specified number of players.
+     * Initializes a new {@code Statistics} object for a game with a given number of players.
+     * The scores of all players are initialized to zero, and all players are marked as alive.
      *
-     * @param maxPlayers Number of players.
+     * @param maxPlayers The maximum number of players in the game.
      */
     public Statistics(int maxPlayers) {
-        this.points = new int[maxPlayers];
+        this.scores = new int[maxPlayers];
         this.playersAlive = new boolean[maxPlayers];
-        Arrays.fill(playersAlive, true);  // Initialize all players as alive
+        resetStatistics();
     }
 
     /**
-     * Increases the points of all players who are alive.
+     * Increases the score of all players that are currently alive.
      *
-     * @param players Array of Player.
+     * @param players Array of {@link Player} objects representing the players.
      */
     public void increasePoints(Player[] players) {
         for (int i = 0; i < players.length; i++) {
-            if (!players[i].getCurve().isDead()) {
-                points[i]++;
+            if (players[i].getCurve().isAlive()) {
+                scores[i]++;
             }
         }
     }
 
     /**
-     * Sets the status of all players to alive.
+     * Sets the status of all players to alive, typically called at the start of a new round.
      */
     public void setAllAlive() {
-        Arrays.fill(playersAlive, true);  // Reset all players to alive
+        Arrays.fill(playersAlive, true);
     }
 
     /**
-     * Returns the number of players who are alive.
+     * Returns the number of players currently alive in the game.
      *
-     * @return Number of players alive.
+     * @return The count of players who are still alive.
      */
-    public int getPlayersAlive() {
-        int count = 0;
+    public int getAlivePlayerCount() {
+        int aliveCount = 0;
         for (boolean alive : playersAlive) {
             if (alive) {
-                count++;
+                aliveCount++;
             }
         }
-        return count;
+        return aliveCount;
     }
 
     /**
-     * Sets the status of the specified player to dead.
+     * Marks a specific player as dead based on their index.
      *
-     * @param player Index of the player to kill.
+     * @param playerIndex The index of the player to mark as dead.
      */
-    public void setDead(int player) {
-        playersAlive[player] = false;
+    public void setPlayerDead(int playerIndex) {
+        playersAlive[playerIndex] = false;
+    }
+
+    /**
+     * Resets all player scores to zero and marks all players as alive.
+     */
+    public void resetStatistics() {
+        Arrays.fill(scores, 0);
+        Arrays.fill(playersAlive, true);
     }
 }

@@ -111,7 +111,7 @@ public class GameConfigurationPanelLocal extends GameSettingsPanel implements Ac
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == start) {
             saveOptions();
-            generatePlayers(colors, false);
+            generatePlayers(colors);
             new ZatackaEngine(players, (int) speed.getValue());
         } else if (e.getSource() == loadDefaults) {
             loadDefaultOptions();

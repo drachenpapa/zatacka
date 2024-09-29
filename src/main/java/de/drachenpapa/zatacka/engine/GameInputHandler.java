@@ -1,77 +1,66 @@
 package de.drachenpapa.zatacka.engine;
 
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 /**
- * This class handles key events and calls the appropriate methods.
- * It controls the movement of the curves.
+ * The {@code GameInputHandler} class manages key events during gameplay.
+ * It updates the players' controls based on key presses and releases,
+ * allowing them to turn their curves left or right.
+ * The class also handles quitting the game when the escape key is pressed.
  *
  * @author Henning Steinberg (@drachenpapa)
  * @version 1.0
  */
 public class GameInputHandler extends KeyAdapter {
-    private final ZatackaEngine ref;
+
+    /** Reference to the ZatackaEngine instance, used to control player curves and game logic. */
+    private final ZatackaEngine engine;
 
     /**
-     * Creates a control object for managing the curves.
+     * Initializes a new {@code GameInputHandler} with the specified game engine.
      *
-     * @param ref Reference to the Zatacka object to call methods for curve movement.
+     * @param engine Reference to the {@link ZatackaEngine} instance that controls the game logic.
      */
-    public GameInputHandler(ZatackaEngine ref) {
-        this.ref = ref;
+    public GameInputHandler(ZatackaEngine engine) {
+        this.engine = engine;
     }
 
     /**
-     * Responds to a key press event.
+     * Invoked when a key is pressed. Updates the player's control state based on the key input.
+     * Handles turning the curves and quitting the game.
      *
-     * @param e The KeyEvent triggered by a key press.
+     * @param e The {@link KeyEvent} representing the key press.
      */
     @Override
     public void keyPressed(KeyEvent e) {
-        char keyChar = e.getKeyChar();
-        if (keyChar == KeyEvent.VK_ESCAPE) {
-            ref.quit();
-            return;
-        }
-        handleKeyPress(keyChar);
-    }
+        char pressedKey = e.getKeyChar();
 
-    /**
-     * Responds to a key release event.
-     *
-     * @param e The KeyEvent triggered by a key release.
-     */
-    @Override
-    public void keyReleased(KeyEvent e) {
-        handleKeyRelease(e.getKeyChar());
-    }
-
-    /**
-     * Handles the logic for key press events for all players.
-     *
-     * @param keyChar The character representation of the key pressed.
-     */
-    private void handleKeyPress(char keyChar) {
-        for (Player player : ref.getPlayers()) {
-            if (player.getLeftControl() == keyChar) {
-                player.setLeftPressed(true);
-            } else if (player.getRightControl() == keyChar) {
-                player.setRightPressed(true);
+        for (Player player : engine.getPlayers()) {
+            if (player.getLeftKey() == pressedKey) {
+                player.setLeftKeyPressed(true);
+            } else if (player.getRightKey() == pressedKey) {
+                player.setRightKeyPressed(true);
+            } else if (pressedKey == KeyEvent.VK_ESCAPE) {
+                engine.quitGame();
             }
         }
     }
 
     /**
-     * Handles the logic for key release events for all players.
+     * Invoked when a key is released. Resets the player's control state when the key is no longer pressed.
      *
-     * @param keyChar The character representation of the key released.
+     * @param e The {@link KeyEvent} representing the key release.
      */
-    private void handleKeyRelease(char keyChar) {
-        for (Player player : ref.getPlayers()) {
-            if (player.getLeftControl() == keyChar) {
-                player.setLeftPressed(false);
-            } else if (player.getRightControl() == keyChar) {
-                player.setRightPressed(false);
+    @Override
+    public void keyReleased(KeyEvent e) {
+        char releasedKey = e.getKeyChar();
+
+        for (Player player : engine.getPlayers()) {
+            if (player.getLeftKey() == releasedKey) {
+                player.setLeftKeyPressed(false);
+            } else if (player.getRightKey() == releasedKey) {
+                player.setRightKeyPressed(false);
             }
         }
     }

@@ -1,4 +1,4 @@
-package de.drachenpapa.zatacka.engine;
+package de.drachenpapa.zatacka.game;
 
 import lombok.Getter;
 

@@ -1,4 +1,7 @@
-package de.drachenpapa.zatacka.engine;
+package de.drachenpapa.zatacka.input;
+
+import de.drachenpapa.zatacka.game.GameEngine;
+import de.drachenpapa.zatacka.game.Player;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -12,17 +15,17 @@ import java.awt.event.KeyEvent;
  * @author Henning Steinberg (@drachenpapa)
  * @version 1.0
  */
-public class GameInputHandler extends KeyAdapter {
+public class InputHandler extends KeyAdapter {
 
     /** Reference to the ZatackaEngine instance, used to control player curves and game logic. */
-    private final ZatackaEngine engine;
+    private final GameEngine engine;
 
     /**
      * Initializes a new {@code GameInputHandler} with the specified game engine.
      *
-     * @param engine Reference to the {@link ZatackaEngine} instance that controls the game logic.
+     * @param engine Reference to the {@link GameEngine} instance that controls the game logic.
      */
-    public GameInputHandler(ZatackaEngine engine) {
+    public InputHandler(GameEngine engine) {
         this.engine = engine;
     }
 

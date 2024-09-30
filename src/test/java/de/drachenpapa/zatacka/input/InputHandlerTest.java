@@ -1,5 +1,7 @@
-package de.drachenpapa.zatacka.engine;
+package de.drachenpapa.zatacka.input;
 
+import de.drachenpapa.zatacka.game.GameEngine;
+import de.drachenpapa.zatacka.game.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,22 +12,22 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class GameInputHandlerTest {
-    private ZatackaEngine engine;
+class InputHandlerTest {
+    private GameEngine engine;
     private Player player1;
     private Player player2;
-    private GameInputHandler inputHandler;
+    private InputHandler inputHandler;
 
     @BeforeEach
     void setUp() {
-        engine = mock(ZatackaEngine.class);
+        engine = mock(GameEngine.class);
         player1 = mock(Player.class);
         player2 = mock(Player.class);
 
         Player[] players = new Player[]{player1, player2};
         when(engine.getPlayers()).thenReturn(players);
 
-        inputHandler = new GameInputHandler(engine);
+        inputHandler = new InputHandler(engine);
     }
 
     @Test

@@ -1,5 +1,6 @@
-package de.drachenpapa.zatacka.engine;
+package de.drachenpapa.zatacka.game;
 
+import de.drachenpapa.zatacka.input.InputHandler;
 import lombok.Getter;
 import java.awt.*;
 import javax.swing.*;
@@ -14,7 +15,7 @@ import java.awt.image.*;
  * @author Henning Steinberg (@drachenpapa)
  * @version 1.0
  */
-public class ZatackaEngine extends Canvas implements Runnable {
+public class GameEngine extends Canvas implements Runnable {
 
     /**
      * The width of the game screen in pixels.
@@ -100,7 +101,7 @@ public class ZatackaEngine extends Canvas implements Runnable {
      * @param players The array of players participating in the game.
      * @param speed   The speed of the game (1-5, with 1 being the slowest).
      */
-    public ZatackaEngine(Player[] players, int speed) {
+    public GameEngine(Player[] players, int speed) {
         setBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         setBackground(Color.black);
 
@@ -123,7 +124,7 @@ public class ZatackaEngine extends Canvas implements Runnable {
         setCursor(getToolkit().createCustomCursor(cursorImg, new Point(0, 0), ""));
 
         gameFrame.setVisible(true);
-        gameFrame.addKeyListener(new GameInputHandler(this));
+        gameFrame.addKeyListener(new InputHandler(this));
 
         this.players = players;
         this.statistics = new Statistics(players.length);
@@ -153,8 +154,8 @@ public class ZatackaEngine extends Canvas implements Runnable {
 
         for (Player player : players) {
             player.setCurve(new Curve(
-                    (int) (Math.random() * ZatackaEngine.SCREEN_WIDTH) + 100,
-                    (int) (Math.random() * ZatackaEngine.SCREEN_HEIGHT) + 100,
+                    (int) (Math.random() * GameEngine.SCREEN_WIDTH) + 100,
+                    (int) (Math.random() * GameEngine.SCREEN_HEIGHT) + 100,
                     Math.random() * 360,
                     (int) (Math.random() * 10) + 1)
             );
@@ -171,8 +172,8 @@ public class ZatackaEngine extends Canvas implements Runnable {
      * @return True if a collision occurred, false otherwise.
      */
     public boolean checkCollision(Curve curve) {
-        int x = curve.getXPosition();
-        int y = curve.getYPosition();
+        double x = curve.getXPosition();
+        double y = curve.getYPosition();
         int boundary = 4;
 
         if (x >= GAME_WIDTH - boundary) curve.setXPosition(boundary);

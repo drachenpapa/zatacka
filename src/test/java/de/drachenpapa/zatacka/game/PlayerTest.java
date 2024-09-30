@@ -1,4 +1,4 @@
-package de.drachenpapa.zatacka.engine;
+package de.drachenpapa.zatacka.game;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

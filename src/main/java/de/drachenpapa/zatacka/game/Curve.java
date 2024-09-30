@@ -1,19 +1,26 @@
-package de.drachenpapa.zatacka.engine;
+package de.drachenpapa.zatacka.game;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represents a Curve in the Zatacka game. The curve moves, turns, and can create gaps as it progresses.
  * This class provides methods for updating the curve's position, direction, and handling collision states.
  *
  * @author Henning Steinberg (@drachenpapa)
- * @version 1.0
+ * @version 1.1
  */
+@Getter
+@Setter
+@AllArgsConstructor
 public class Curve {
 
     /** X-coordinate of the curve's current position. */
-    private double xPosition;
+    private int xPosition;
 
     /** Y-coordinate of the curve's current position. */
-    private double yPosition;
+    private int yPosition;
 
     /** Direction of the curve's movement, in degrees. */
     private double directionAngle;
@@ -52,14 +59,14 @@ public class Curve {
     private static final int MAX_GAP_LENGTH = 4;
 
     /**
-     * Constructs a new curve with the given starting position, direction, and gap generation interval.
+     * Initializes a new curve with the specified starting position, direction, and gap generation interval.
      *
-     * @param xPosition     Initial X-coordinate of the curve.
-     * @param yPosition     Initial Y-coordinate of the curve.
+     * @param xPosition      Initial X-coordinate of the curve.
+     * @param yPosition      Initial Y-coordinate of the curve.
      * @param directionAngle Initial movement direction of the curve, in degrees.
-     * @param gapInterval   Time interval for generating gaps in milliseconds.
+     * @param gapInterval    Time interval for generating gaps in milliseconds.
      */
-    public Curve(double xPosition, double yPosition, double directionAngle, long gapInterval) {
+    public Curve(int xPosition, int yPosition, double directionAngle, long gapInterval) {
         this.xPosition = xPosition;
         this.yPosition = yPosition;
         this.directionAngle = directionAngle;
@@ -67,43 +74,7 @@ public class Curve {
         this.isGapActive = false;
         this.isDead = false;
         this.gapLengthCounter = 0;
-        this.lastGapTimestamp = System.currentTimeMillis();
-    }
-
-    /**
-     * Sets the X-coordinate of the curve.
-     *
-     * @param xPosition New X-coordinate value.
-     */
-    public void setXPosition(double xPosition) {
-        this.xPosition = xPosition;
-    }
-
-    /**
-     * Returns the current X-coordinate of the curve, rounded to the nearest integer.
-     *
-     * @return X-coordinate of the curve.
-     */
-    public int getXPosition() {
-        return (int) Math.round(xPosition);
-    }
-
-    /**
-     * Sets the Y-coordinate of the curve.
-     *
-     * @param yPosition New Y-coordinate value.
-     */
-    public void setYPosition(double yPosition) {
-        this.yPosition = yPosition;
-    }
-
-    /**
-     * Returns the current Y-coordinate of the curve, rounded to the nearest integer.
-     *
-     * @return Y-coordinate of the curve.
-     */
-    public int getYPosition() {
-        return (int) Math.round(yPosition);
+        this.lastGapTimestamp = currentTimeMillis();
     }
 
     /**
@@ -112,8 +83,12 @@ public class Curve {
      */
     public void move() {
         double radians = Math.toRadians(directionAngle);
-        xPosition += Math.cos(radians) * STEP_SIZE;
-        yPosition -= Math.sin(radians) * STEP_SIZE;
+        xPosition += calculateStep(Math.cos(radians));
+        yPosition -= calculateStep(Math.sin(radians));
+    }
+
+    private int calculateStep(double direction) {
+        return (int) (direction * STEP_SIZE);
     }
 
     /**
@@ -137,17 +112,17 @@ public class Curve {
      * @return {@code true} if the curve is currently generating a gap; {@code false} otherwise.
      */
     public boolean isGeneratingGap() {
-        long currentTime = System.currentTimeMillis();
+        long currentTime = currentTimeMillis();
 
         if (currentTime - lastGapTimestamp > gapInterval) {
             startNewGap(currentTime);
         }
 
-        if (isGapActive) {
-            return continueGap();
-        }
+        return isGapActive && continueGap();
+    }
 
-        return false;
+    long currentTimeMillis() {
+        return System.currentTimeMillis();
     }
 
     /**
@@ -156,8 +131,16 @@ public class Curve {
     private void startNewGap(long currentTime) {
         isGapActive = true;
         lastGapTimestamp = currentTime;
-        gapInterval = MIN_GAP_INTERVAL + (long) (Math.random() * (MAX_GAP_INTERVAL - MIN_GAP_INTERVAL));
-        gapLengthCounter = MIN_GAP_LENGTH + (int) (Math.random() * (MAX_GAP_LENGTH - MIN_GAP_LENGTH + 1));
+        gapInterval = generateRandomGapInterval();
+        gapLengthCounter = generateRandomGapLength();
+    }
+
+    private long generateRandomGapInterval() {
+        return MIN_GAP_INTERVAL + (long) (Math.random() * (MAX_GAP_INTERVAL - MIN_GAP_INTERVAL));
+    }
+
+    private int generateRandomGapLength() {
+        return MIN_GAP_LENGTH + (int) (Math.random() * (MAX_GAP_LENGTH - MIN_GAP_LENGTH + 1));
     }
 
     /**

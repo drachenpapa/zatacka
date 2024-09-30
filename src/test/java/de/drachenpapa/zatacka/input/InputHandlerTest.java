@@ -5,84 +5,70 @@ import de.drachenpapa.zatacka.game.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
 
 class InputHandlerTest {
-    private GameEngine engine;
-    private Player player1;
-    private Player player2;
+
+    private GameEngine gameEngine;
     private InputHandler inputHandler;
+    private Player player;
 
     @BeforeEach
     void setUp() {
-        engine = mock(GameEngine.class);
-        player1 = mock(Player.class);
-        player2 = mock(Player.class);
+        gameEngine = mock(GameEngine.class);
+        player = new Player("Test Player", Color.RED, 'a', 'd');
 
-        Player[] players = new Player[]{player1, player2};
-        when(engine.getPlayers()).thenReturn(players);
+        inputHandler = new InputHandler(gameEngine);
 
-        inputHandler = new InputHandler(engine);
+        when(gameEngine.getPlayers()).thenReturn(new Player[]{player});
     }
 
     @Test
     void testKeyPressedLeftKey() {
-        char leftKey = 'A';
-        when(player1.getLeftKey()).thenReturn(leftKey);
+        KeyEvent leftKeyEvent = new KeyEvent(new java.awt.Canvas(), KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, KeyEvent.VK_A, 'a');
+        inputHandler.keyPressed(leftKeyEvent);
 
-        KeyEvent keyEvent = new KeyEvent(new java.awt.Component() {}, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, 0, leftKey);
-        inputHandler.keyPressed(keyEvent);
-
-        verify(player1).setLeftKeyPressed(true);
-        verify(player2, never()).setLeftKeyPressed(true);
+        assertThat("The left key should be pressed", player.isLeftKeyPressed(), is(true));
+        assertThat("The right key should not be pressed", player.isRightKeyPressed(), is(false));
     }
 
     @Test
     void testKeyPressedRightKey() {
-        char rightKey = 'D';
-        when(player1.getRightKey()).thenReturn(rightKey);
+        KeyEvent rightKeyEvent = new KeyEvent(new java.awt.Canvas(), KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, KeyEvent.VK_D, 'd');
+        inputHandler.keyPressed(rightKeyEvent);
 
-        KeyEvent keyEvent = new KeyEvent(new java.awt.Component() {}, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, 0, rightKey);
-        inputHandler.keyPressed(keyEvent);
-
-        verify(player1).setRightKeyPressed(true);
-        verify(player2, never()).setRightKeyPressed(true);
+        assertThat("The right key should be pressed", player.isRightKeyPressed(), is(true));
+        assertThat("The left key should not be pressed", player.isLeftKeyPressed(), is(false));
     }
 
     @Test
     void testKeyPressedEscapeKey() {
-        KeyEvent keyEvent = new KeyEvent(new java.awt.Component() {}, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, KeyEvent.VK_ESCAPE, KeyEvent.CHAR_UNDEFINED);
-        inputHandler.keyPressed(keyEvent);
+        KeyEvent escapeKeyEvent = new KeyEvent(new java.awt.Canvas(), KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, KeyEvent.VK_ESCAPE, KeyEvent.CHAR_UNDEFINED);
+        inputHandler.keyPressed(escapeKeyEvent);
 
-        verify(engine).quitGame();
+        verify(gameEngine, times(1)).quitGame();
     }
 
     @Test
     void testKeyReleasedLeftKey() {
-        char leftKey = 'A';
-        when(player1.getLeftKey()).thenReturn(leftKey);
+        player.setLeftKeyPressed(true); // Simulate left key pressed
+        KeyEvent leftKeyReleaseEvent = new KeyEvent(new java.awt.Canvas(), KeyEvent.KEY_RELEASED, System.currentTimeMillis(), 0, KeyEvent.VK_A, 'a');
+        inputHandler.keyReleased(leftKeyReleaseEvent);
 
-        KeyEvent keyEvent = new KeyEvent(new java.awt.Component() {}, KeyEvent.KEY_RELEASED, System.currentTimeMillis(), 0, 0, leftKey);
-        inputHandler.keyReleased(keyEvent);
-
-        verify(player1).setLeftKeyPressed(false);
-        verify(player2, never()).setLeftKeyPressed(false);
+        assertThat("The left key should not be pressed after release", player.isLeftKeyPressed(), is(false));
     }
 
     @Test
     void testKeyReleasedRightKey() {
-        char rightKey = 'D';
-        when(player1.getRightKey()).thenReturn(rightKey);
+        player.setRightKeyPressed(true); // Simulate right key pressed
+        KeyEvent rightKeyReleaseEvent = new KeyEvent(new java.awt.Canvas(), KeyEvent.KEY_RELEASED, System.currentTimeMillis(), 0, KeyEvent.VK_D, 'd');
+        inputHandler.keyReleased(rightKeyReleaseEvent);
 
-        KeyEvent keyEvent = new KeyEvent(new java.awt.Component() {}, KeyEvent.KEY_RELEASED, System.currentTimeMillis(), 0, 0, rightKey);
-        inputHandler.keyReleased(keyEvent);
-
-        verify(player1).setRightKeyPressed(false);
-        verify(player2, never()).setRightKeyPressed(false);
+        assertThat("The right key should not be pressed after release", player.isRightKeyPressed(), is(false));
     }
 }

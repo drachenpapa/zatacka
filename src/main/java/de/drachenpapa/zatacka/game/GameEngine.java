@@ -2,13 +2,14 @@ package de.drachenpapa.zatacka.game;
 
 import de.drachenpapa.zatacka.input.InputHandler;
 import lombok.Getter;
-import java.awt.*;
+
 import javax.swing.*;
-import java.awt.image.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
- * ZatackaEngine is responsible for managing the game loop, game state, and
- * rendering the game field and players' curves. It implements the core mechanics
+ * The GameEngine is responsible for managing the game loop, game state, and rendering
+ * the game field along with the players' curves. It implements the core mechanics
  * of the game and interacts with the Player and Statistics classes to manage
  * player actions and track scores.
  *
@@ -17,91 +18,63 @@ import java.awt.image.*;
  */
 public class GameEngine extends Canvas implements Runnable {
 
-    /**
-     * The width of the game screen in pixels.
-     */
+    /** The width of the game screen in pixels. */
     public static final int SCREEN_WIDTH = 800;
 
-    /**
-     * The height of the game screen in pixels.
-     */
+    /** The height of the game screen in pixels. */
     public static final int SCREEN_HEIGHT = 600;
 
-    /**
-     * The width of the game field (the area where the game takes place).
-     */
+    /** The width of the game field (the area where the game takes place). */
     private final int GAME_WIDTH = 676;
 
-    /**
-     * The height of the game field.
-     */
+    /** The height of the game field. */
     private final int GAME_HEIGHT = 594;
 
-    /**
-     * A 2D boolean array representing the game field. Each cell stores whether
-     * part of a curve occupies that position.
-     */
+    /** A 2D boolean array representing the game field. Each cell stores whether part of a curve occupies that position. */
     private boolean[][] gameField = new boolean[GAME_HEIGHT][GAME_WIDTH];
 
-    /**
-     * The players participating in the game.
-     */
+    /** The players participating in the game. */
     @Getter
     private final Player[] players;
 
-    /**
-     * Statistics instance that tracks players' scores and status.
-     */
+    /** Statistics instance that tracks players' scores and status. */
     private final Statistics statistics;
 
-    /**
-     * Flag to indicate if the next round should start.
-     */
+    /** Flag to indicate if the next round should start. */
     private volatile boolean isNextRound = false;
 
-    /**
-     * Flag to indicate if the game has just started.
-     */
+    /** Flag to indicate if the game has just started. */
     private volatile boolean isGameStarted = true;
 
-    /**
-     * Flag to control the main game loop.
-     */
+    /** Flag to control the main game loop. */
     private volatile boolean isGameRunning = true;
 
-    /**
-     * Flag to indicate if the game has ended.
-     */
+    /** Flag to indicate if the game has ended. */
     private volatile boolean isGameEnded = false;
 
-    /**
-     * The speed of the game, which determines how fast the game loop runs.
-     */
+    /** The speed of the game, which determines how fast the game loop runs. */
     private final int gameSpeed;
 
-    /**
-     * The maximum score a player can reach before the game ends.
-     */
+    /** The maximum score a player can reach before the game ends. */
     private final int maxScore;
 
-    /**
-     * The JFrame that displays the game.
-     */
+    /** The JFrame that displays the game. */
     private final JFrame gameFrame;
 
-    /**
-     * The original display mode before the game changes the screen resolution.
-     */
+    /** The original display mode before the game changes the screen resolution. */
     private final DisplayMode originalDisplayMode;
 
     /**
-     * Constructor for the ZatackaEngine. It initializes the game settings, players,
+     * Constructs a GameEngine instance and initializes game settings, players,
      * and sets up the JFrame for rendering the game.
      *
      * @param players The array of players participating in the game.
      * @param speed   The speed of the game (1-5, with 1 being the slowest).
      */
     public GameEngine(Player[] players, int speed) {
+        this.players = players;
+        this.statistics = new Statistics(players.length);
+
         setBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         setBackground(Color.black);
 
@@ -111,6 +84,7 @@ public class GameEngine extends Canvas implements Runnable {
         panel.setLayout(null);
         panel.add(this);
 
+        // Setup fullscreen
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         device.setFullScreenWindow(gameFrame);
 
@@ -126,8 +100,6 @@ public class GameEngine extends Canvas implements Runnable {
         gameFrame.setVisible(true);
         gameFrame.addKeyListener(new InputHandler(this));
 
-        this.players = players;
-        this.statistics = new Statistics(players.length);
         this.gameSpeed = 10 * (6 - speed);
         this.maxScore = (players.length - 1) * 10;
 
@@ -141,7 +113,6 @@ public class GameEngine extends Canvas implements Runnable {
      */
     public void quitGame() {
         isGameRunning = false;
-        GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setDisplayMode(originalDisplayMode);
         gameFrame.dispose();
     }
 

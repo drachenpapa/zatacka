@@ -3,18 +3,21 @@ package de.drachenpapa.zatacka;
 import de.drachenpapa.zatacka.ui.SettingsUI;
 
 /**
- * Entry point for the Zatacka game application.
- * Initializes and displays the pre-dialog for game options.
- * <p>
- * Author: Henning Steinberg (@drachenpapa)
- * Version: 1.0
+ * The {@code ZatackaApplication} class serves as the entry point for the Zatacka game application.
+ * It initializes the user interface for game settings and starts the application.
+ *
+ * @author Henning Steinberg (@drachenpapa)
+ * @version 1.0
  */
 public class ZatackaApplication {
 
     /**
-     * Main method to start the Zatacka application.
+     * The main method serves as the starting point for the Zatacka application.
      *
-     * @param args Command-line arguments (not used).
+     * This method is responsible for displaying the {@link SettingsUI} to the user,
+     * allowing them to configure game options before starting the game.
+     *
+     * @param args Command-line arguments (not utilized in this application).
      */
     public static void main(String[] args) {
         new SettingsUI();

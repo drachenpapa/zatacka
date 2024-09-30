@@ -1,6 +1,5 @@
 package de.drachenpapa.zatacka.game;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,11 +8,10 @@ import lombok.Setter;
  * This class provides methods for updating the curve's position, direction, and handling collision states.
  *
  * @author Henning Steinberg (@drachenpapa)
- * @version 1.1
+ * @version 1.0
  */
 @Getter
 @Setter
-@AllArgsConstructor
 public class Curve {
 
     /** X-coordinate of the curve's current position. */
@@ -74,7 +72,7 @@ public class Curve {
         this.isGapActive = false;
         this.isDead = false;
         this.gapLengthCounter = 0;
-        this.lastGapTimestamp = currentTimeMillis();
+        this.lastGapTimestamp = System.currentTimeMillis();
     }
 
     /**
@@ -83,12 +81,8 @@ public class Curve {
      */
     public void move() {
         double radians = Math.toRadians(directionAngle);
-        xPosition += calculateStep(Math.cos(radians));
-        yPosition -= calculateStep(Math.sin(radians));
-    }
-
-    private int calculateStep(double direction) {
-        return (int) (direction * STEP_SIZE);
+        xPosition += (int) (Math.cos(radians) * STEP_SIZE);
+        yPosition -= (int) (Math.sin(radians) * STEP_SIZE);
     }
 
     /**
@@ -112,7 +106,7 @@ public class Curve {
      * @return {@code true} if the curve is currently generating a gap; {@code false} otherwise.
      */
     public boolean isGeneratingGap() {
-        long currentTime = currentTimeMillis();
+        long currentTime = System.currentTimeMillis();
 
         if (currentTime - lastGapTimestamp > gapInterval) {
             startNewGap(currentTime);
@@ -121,26 +115,14 @@ public class Curve {
         return isGapActive && continueGap();
     }
 
-    long currentTimeMillis() {
-        return System.currentTimeMillis();
-    }
-
     /**
      * Starts a new gap by updating the gap interval and resetting the gap length counter.
      */
     private void startNewGap(long currentTime) {
         isGapActive = true;
         lastGapTimestamp = currentTime;
-        gapInterval = generateRandomGapInterval();
-        gapLengthCounter = generateRandomGapLength();
-    }
-
-    private long generateRandomGapInterval() {
-        return MIN_GAP_INTERVAL + (long) (Math.random() * (MAX_GAP_INTERVAL - MIN_GAP_INTERVAL));
-    }
-
-    private int generateRandomGapLength() {
-        return MIN_GAP_LENGTH + (int) (Math.random() * (MAX_GAP_LENGTH - MIN_GAP_LENGTH + 1));
+        gapInterval = MIN_GAP_INTERVAL + (long) (Math.random() * (MAX_GAP_INTERVAL - MIN_GAP_INTERVAL));
+        gapLengthCounter = MIN_GAP_LENGTH + (int) (Math.random() * (MAX_GAP_LENGTH - MIN_GAP_LENGTH + 1));
     }
 
     /**

@@ -56,7 +56,7 @@ class InputHandlerTest {
 
     @Test
     void testKeyReleasedLeftKey() {
-        player.setLeftKeyPressed(true); // Simulate left key pressed
+        player.setLeftKeyPressed(true);
         KeyEvent leftKeyReleaseEvent = new KeyEvent(new java.awt.Canvas(), KeyEvent.KEY_RELEASED, System.currentTimeMillis(), 0, KeyEvent.VK_A, 'a');
         inputHandler.keyReleased(leftKeyReleaseEvent);
 
@@ -65,7 +65,7 @@ class InputHandlerTest {
 
     @Test
     void testKeyReleasedRightKey() {
-        player.setRightKeyPressed(true); // Simulate right key pressed
+        player.setRightKeyPressed(true);
         KeyEvent rightKeyReleaseEvent = new KeyEvent(new java.awt.Canvas(), KeyEvent.KEY_RELEASED, System.currentTimeMillis(), 0, KeyEvent.VK_D, 'd');
         inputHandler.keyReleased(rightKeyReleaseEvent);
 

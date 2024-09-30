@@ -40,7 +40,7 @@ class GameEngineTest {
     void testDetectCurveCollisionWithOccupiedSpace() {
         Curve curve = new Curve(10, 10, 0, 1);
         gameEngine.getPlayers()[0].setCurve(curve);
-        gameEngine.checkCollision(curve); // Mark occupied
+        gameEngine.checkCollision(curve);
         assertThat("Detecting curve collision should return true when the curve occupies an already occupied space", gameEngine.detectCurveCollision(curve), is(true));
     }
 }

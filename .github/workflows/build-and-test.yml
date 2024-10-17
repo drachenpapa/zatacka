@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build and Test
+    name: Build project
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,15 +20,22 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Build
-        run: mvn -B process-test-classes -DskipTests
+        run: mvn -B package -DskipTests
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: target/
 
   test:
     name: Run unit tests
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -36,7 +43,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Run unit tests
-        run: mvn -B -Dmaven.test.failure.ignore=true test
+        run: mvn -B test
       - name: Gather test results
         uses: dorny/test-reporter@v1
         if: always()

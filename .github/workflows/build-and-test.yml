@@ -21,11 +21,6 @@ jobs:
           cache: 'maven'
       - name: Build
         run: mvn -B package -DskipTests
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifacts
-          path: target/
 
   test:
     name: Run unit tests
@@ -41,7 +36,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Run unit tests
-        run: mvn -B test
+        run: mvn -B test -U
       - name: Gather test results
         uses: dorny/test-reporter@v1
         if: always()

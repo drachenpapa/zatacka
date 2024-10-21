@@ -1,7 +1,6 @@
 package de.drachenpapa.zatacka.game;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.awt.*;
@@ -16,14 +15,13 @@ class GameEngineTest {
 
     @BeforeEach
     void setUp() {
-        players = new Player[] {
+        players = new Player[]{
                 new Player("Player 1", Color.RED, '1', 'q'),
                 new Player("Player 2", Color.BLUE, 'y', 'x')};
         gameEngine = new GameEngine(players, 3);
     }
 
     @Test
-    @Disabled
     void testStartNextRound() {
         gameEngine.startNextRound();
         for (Player player : players) {
@@ -33,14 +31,12 @@ class GameEngineTest {
     }
 
     @Test
-    @Disabled
     void testCheckCollisionNoCollision() {
         Curve curve = new Curve(100, 100, 0, 1);
         assertThat("Collision check should return false for non-colliding curve", gameEngine.checkCollision(curve), is(false));
     }
 
     @Test
-    @Disabled
     void testDetectCurveCollisionWithOccupiedSpace() {
         Curve curve = new Curve(10, 10, 0, 1);
         gameEngine.getPlayers()[0].setCurve(curve);

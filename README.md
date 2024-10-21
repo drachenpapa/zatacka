@@ -1,4 +1,4 @@
-<h1><p align="center">Zatacka</p></h1>
+<h1><p align="center">ZATACKA</p></h1>
 
 <p align="center">
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" alt="License"></a>
@@ -8,7 +8,7 @@
 
 ---
 
-> :information_source: This repository contains a Java implementation of the game Zatacka, originally created during a school internship in 2007. The project has been preserved for historical purposes and the original source code can be found in the [original-source](#original-source) directory. The goal is to both **archive** the old source code and **modernize** the project using more up-to-date tools and practices. The original code reflects the programming knowledge and practices from that time, which may differ significantly from modern Java standards. It serves as a snapshot of what was done back then and is not representative of my actual coding skills or current best practices.
+> :information_source: This repository contains a Java implementation of the game Zatacka, originally created during a school internship in 2007. The project has been preserved for historical purposes and the original source code can be found in the [original-src](#original-src) directory. The goal is to both **archive** the old source code and **modernize** the project using more up-to-date tools and practices. The original code reflects the programming knowledge and practices from that time, which may differ significantly from modern Java standards. It serves as a snapshot of what was done back then and is not representative of my actual coding skills or current best practices.
 
 
 A remake of the classic multiplayer game **Zatacka** (also known as _Achtung, die Kurve!_), built using Java Swing. In this game, players control a growing line (curve), trying to outlast opponents by avoiding collisions with lines, walls, and themselves.

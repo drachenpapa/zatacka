@@ -1,4 +1,4 @@
-<p align="center"><h1>Zatacka</h1></p>
+<h1><p align="center">Zatacka</p></h1>
 
 <p align="center">
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" alt="License"></a>

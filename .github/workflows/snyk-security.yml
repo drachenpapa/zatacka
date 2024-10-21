@@ -7,8 +7,8 @@ on:
     branches: ["main"]
 
 jobs:
-  snyk:
-    name: Run Snyk Security
+  snyk-code:
+    name: Run Snyk Scode
     permissions:
       contents: read
       security-events: write

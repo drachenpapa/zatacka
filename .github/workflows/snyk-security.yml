@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Run SnykSecurity
+      - name: Run Snyk Open Source
         uses: snyk/actions/maven@master
         continue-on-error: true
         env:

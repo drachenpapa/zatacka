@@ -84,7 +84,6 @@ public class GameEngine extends Canvas implements Runnable {
         panel.setLayout(null);
         panel.add(this);
 
-        // Setup fullscreen
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         device.setFullScreenWindow(gameFrame);
 
@@ -147,10 +146,20 @@ public class GameEngine extends Canvas implements Runnable {
         double y = curve.getYPosition();
         int boundary = 4;
 
-        if (x >= GAME_WIDTH - boundary) curve.setXPosition(boundary);
-        if (x <= boundary) curve.setXPosition(GAME_WIDTH - boundary);
-        if (y >= GAME_HEIGHT - boundary) curve.setYPosition(boundary);
-        if (y <= boundary) curve.setYPosition(GAME_HEIGHT - boundary);
+        if (x >= GAME_WIDTH - boundary) {
+            curve.setXPosition(boundary);
+            curve.setPreviousXPosition(boundary);
+        } else if (x <= boundary) {
+            curve.setXPosition(GAME_WIDTH - boundary);
+            curve.setPreviousXPosition(GAME_WIDTH - boundary);
+        }
+        if (y >= GAME_HEIGHT - boundary) {
+            curve.setYPosition(boundary);
+            curve.setPreviousYPosition(boundary);
+        } else if (y <= boundary) {
+            curve.setYPosition(GAME_HEIGHT - boundary);
+            curve.setPreviousYPosition(GAME_HEIGHT - boundary);
+        }
 
         return detectCurveCollision(curve);
     }
@@ -241,9 +250,11 @@ public class GameEngine extends Canvas implements Runnable {
                     statistics.increasePoints(players);
                     drawScores(g);
                 } else {
-                    int x = curve.getXPosition();
-                    int y = curve.getYPosition();
-                    g.fillRect(x, y, 4, 4);
+                    g.drawLine(
+                            curve.getPreviousXPosition(),
+                            curve.getPreviousYPosition(),
+                            curve.getXPosition(),
+                            curve.getYPosition());
                 }
             }
         }

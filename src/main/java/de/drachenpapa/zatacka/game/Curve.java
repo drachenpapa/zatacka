@@ -3,6 +3,10 @@ package de.drachenpapa.zatacka.game;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents a Curve in the Zatacka game. The curve moves, turns, and can create gaps as it progresses.
  * This class provides methods for updating the curve's position, direction, and handling collision states.
@@ -14,14 +18,38 @@ import lombok.Setter;
 @Setter
 public class Curve {
 
+    /** Maximum time for generating gaps (in milliseconds). */
+    private static final long MAX_GAP_INTERVAL = 6000L;
+
+    /** Minimum time for generating gaps (in milliseconds). */
+    private static final long MIN_GAP_INTERVAL = 1000L;
+
+    /** Minimum gap length. */
+    private static final int MIN_GAP_LENGTH = 2;
+
+    /** Maximum gap length. */
+    private static final int MAX_GAP_LENGTH = 4;
+
+    /** Step size for curve movement. */
+    private static final double STEP_SIZE = 6.0;
+
+    /** Rotation angle for turning the curve. */
+    private static final double TURN_ANGLE = 10.0;
+
+    /** Direction of the curve's movement, in degrees. */
+    private double directionAngle;
+
     /** X-coordinate of the curve's current position. */
     private int xPosition;
 
     /** Y-coordinate of the curve's current position. */
     private int yPosition;
 
-    /** Direction of the curve's movement, in degrees. */
-    private double directionAngle;
+    /** Previous X-coordinate of the curve's position for drawing lines. */
+    private int previousXPosition;
+
+    /** Previous Y-coordinate of the curve's position for drawing lines. */
+    private int previousYPosition;
 
     /** Counter tracking the length of the current gap in the curve. */
     private int gapLengthCounter;
@@ -38,23 +66,8 @@ public class Curve {
     /** Indicates whether the curve has collided (i.e., is "dead"). */
     private boolean isDead;
 
-    /** Step size for curve movement. */
-    private static final double STEP_SIZE = 6.0;
-
-    /** Rotation angle for turning the curve. */
-    private static final double TURN_ANGLE = 10.0;
-
-    /** Minimum time for generating gaps (in milliseconds). */
-    private static final long MIN_GAP_INTERVAL = 1000L;
-
-    /** Maximum time for generating gaps (in milliseconds). */
-    private static final long MAX_GAP_INTERVAL = 6000L;
-
-    /** Minimum gap length. */
-    private static final int MIN_GAP_LENGTH = 2;
-
-    /** Maximum gap length. */
-    private static final int MAX_GAP_LENGTH = 4;
+    /** List of points representing the curve as a polygon. */
+    private List<Point> points = new ArrayList<>();
 
     /**
      * Initializes a new curve with the specified starting position, direction, and gap generation interval.
@@ -67,12 +80,16 @@ public class Curve {
     public Curve(int xPosition, int yPosition, double directionAngle, long gapInterval) {
         this.xPosition = xPosition;
         this.yPosition = yPosition;
+        this.previousXPosition = xPosition;
+        this.previousYPosition = yPosition;
         this.directionAngle = directionAngle;
         this.gapInterval = gapInterval;
         this.isGapActive = false;
         this.isDead = false;
         this.gapLengthCounter = 0;
         this.lastGapTimestamp = System.currentTimeMillis();
+
+        addPoint(xPosition, yPosition);
     }
 
     /**
@@ -80,9 +97,24 @@ public class Curve {
      * The curve moves forward by a fixed step size.
      */
     public void move() {
+        previousXPosition = xPosition;
+        previousYPosition = yPosition;
+
         double radians = Math.toRadians(directionAngle);
         xPosition += (int) (Math.cos(radians) * STEP_SIZE);
         yPosition -= (int) (Math.sin(radians) * STEP_SIZE);
+
+        addPoint(xPosition, yPosition);
+    }
+
+    /**
+     * Adds a new point to the list of points representing the curve.
+     *
+     * @param x The x-coordinate of the new point.
+     * @param y The y-coordinate of the new point.
+     */
+    public void addPoint(int x, int y) {
+        points.add(new Point(x, y));
     }
 
     /**

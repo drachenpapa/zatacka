@@ -15,14 +15,13 @@ import java.awt.Color;
  */
 public class Player {
 
+    /** Name of the player. */
+    @Getter
+    private final String playerName;
+
     /** Color representing the player's curve. */
     @Getter
     private final Color color;
-
-    /** The player's curve which moves and interacts in the game. */
-    @Setter
-    @Getter
-    private Curve curve;
 
     /** Key used for turning the curve to the left. */
     @Getter
@@ -32,9 +31,10 @@ public class Player {
     @Getter
     private final char rightKey;
 
-    /** Name of the player. */
+    /** The player's curve which moves and interacts in the game. */
+    @Setter
     @Getter
-    private final String playerName;
+    private Curve curve;
 
     /** Tracks whether the left key is currently pressed. */
     private boolean isLeftKeyPressed = false;
@@ -62,7 +62,7 @@ public class Player {
     /**
      * Generates a random curve with a random initial position and direction.
      *
-     * @return A new Curve instance with random parameters.
+     * @return A new {@link Curve} instance with random parameters.
      */
     private Curve createRandomCurve() {
         int xPosition = (int) (Math.random() * GameEngine.WINDOW_WIDTH + 100);
@@ -82,21 +82,21 @@ public class Player {
     }
 
     /**
-     * Sets the state of the left key being pressed or released.
-     *
-     * @param isLeftKeyPressed {@code true} if the left key is pressed, otherwise {@code false}.
-     */
-    public void setLeftKeyPressed(boolean isLeftKeyPressed) {
-        this.isLeftKeyPressed = isLeftKeyPressed;
-    }
-
-    /**
      * Checks if the right key is currently pressed by the player.
      *
      * @return {@code true} if the right key is pressed, otherwise {@code false}.
      */
     public boolean isRightKeyPressed() {
         return isRightKeyPressed;
+    }
+
+    /**
+     * Sets the state of the left key being pressed or released.
+     *
+     * @param isLeftKeyPressed {@code true} if the left key is pressed, otherwise {@code false}.
+     */
+    public void setLeftKeyPressed(boolean isLeftKeyPressed) {
+        this.isLeftKeyPressed = isLeftKeyPressed;
     }
 
     /**

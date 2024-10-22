@@ -4,7 +4,7 @@ import java.awt.*;
 
 /**
  * The {@code GameRenderer} class is responsible for rendering various components
- * of the game, including the game field, the score panel, and the final statistics.
+ * of the game, including the game field, the player curves, the score panel, and the final statistics.
  * It uses the provided {@link Graphics} context to draw these elements onto the game screen.
  *
  * @author Henning Steinberg (@drachenpapa)
@@ -23,6 +23,20 @@ class GameRenderer {
         g.fillRect(0, 0, GameEngine.WINDOW_WIDTH, GameEngine.WINDOW_HEIGHT);
         g.setColor(Color.black);
         g.fillRect(3, 3, GameEngine.PLAY_AREA_WIDTH, GameEngine.PLAY_AREA_HEIGHT);
+    }
+
+    /**
+     * Draws the curve of a player on the game field.
+     *
+     * @param g     The {@link Graphics} context used for drawing the curve.
+     * @param curve The {@link Curve} object representing the player's curve to be drawn.
+     */
+    void drawPlayerCurve(Graphics g, Curve curve) {
+        g.drawLine(
+                curve.getPreviousXPosition(),
+                curve.getPreviousYPosition(),
+                curve.getXPosition(),
+                curve.getYPosition());
     }
 
     /**
@@ -49,7 +63,7 @@ class GameRenderer {
 
     /**
      * Draws the final scores of all players when the game ends.
-     * This is called at the conclusion of the game to display the final statistics,
+     * This method is called at the conclusion of the game to display the final statistics,
      * showing the names of all players and their respective scores.
      *
      * @param g          The {@link Graphics} context used for drawing the final scores.
@@ -63,7 +77,7 @@ class GameRenderer {
 
         g.setColor(Color.white);
         g.setFont(new Font("SANS_SERIF", Font.BOLD, 72));
-        g.drawString("Final Scores", 200, 100); // Title
+        g.drawString("Final Scores", 200, 100);
 
         for (int i = 0; i < players.length; i++) {
             g.setColor(players[i].getColor());

@@ -238,7 +238,7 @@ public class GameEngine extends JPanel implements Runnable {
             isGameOver = false;
         } else if (isGameStarted) {
             gameRenderer.drawGameField(g);
-            drawScores(g);
+            renderScorePanel(g);
             isGameStarted = false;
             isGameRunning = true;
         } else if (isGameRunning) {
@@ -260,21 +260,20 @@ public class GameEngine extends JPanel implements Runnable {
             if (curve.isAlive() && !curve.isGeneratingGap()) {
                 g.setColor(player.getColor());
 
-
                 if (isCollisionDetected(curve)) {
-                    curve.markAsDead();
-                    statistics.setPlayerDead(i);
-                    statistics.increasePoints(players);
-                    drawScores(g);
+                    handleCollision(g, curve, i);
                 } else {
-                    g.drawLine(
-                            curve.getPreviousXPosition(),
-                            curve.getPreviousYPosition(),
-                            curve.getXPosition(),
-                            curve.getYPosition());
+                    gameRenderer.drawPlayerCurve(g, curve);
                 }
             }
         }
+    }
+
+    private void handleCollision(Graphics g, Curve curve, int playerIndex) {
+        curve.markAsDead();
+        statistics.setPlayerDead(playerIndex);
+        statistics.increasePoints(players);
+        renderScorePanel(g);
     }
 
     /**
@@ -283,7 +282,7 @@ public class GameEngine extends JPanel implements Runnable {
      *
      * @param g The Graphics context to draw on.
      */
-     private void drawScores(Graphics g) {
+     private void renderScorePanel(Graphics g) {
          gameRenderer.drawScores(g, players, statistics);
          checkForGameEnd();
      }

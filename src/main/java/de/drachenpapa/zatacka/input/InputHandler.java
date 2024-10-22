@@ -44,7 +44,6 @@ public class InputHandler extends KeyAdapter {
         }
     }
 
-
     /**
      * Invoked when a key is released. Resets the player's control state when the key is no longer pressed.
      *

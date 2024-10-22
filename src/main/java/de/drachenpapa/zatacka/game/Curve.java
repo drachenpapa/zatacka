@@ -93,6 +93,34 @@ public class Curve {
     }
 
     /**
+     * Starts a new gap by updating the gap interval and resetting the gap length counter.
+     *
+     * @param currentTime The current timestamp used to set the last gap timestamp.
+     */
+    private void startNewGap(long currentTime) {
+        isGapActive = true;
+        lastGapTimestamp = currentTime;
+        gapInterval = MIN_GAP_INTERVAL + (long) (Math.random() * (MAX_GAP_INTERVAL - MIN_GAP_INTERVAL));
+        gapLengthCounter = MIN_GAP_LENGTH + (int) (Math.random() * (MAX_GAP_LENGTH - MIN_GAP_LENGTH + 1));
+    }
+
+    /**
+     * Continues generating the current gap and decrements the gap length counter.
+     * If the counter reaches zero, the gap ends.
+     *
+     * @return {@code true} if the gap is still active; {@code false} otherwise.
+     */
+    private boolean continueGap() {
+        if (gapLengthCounter > 0) {
+            gapLengthCounter--;
+            return true;
+        } else {
+            isGapActive = false;
+            return false;
+        }
+    }
+
+    /**
      * Updates the position of the curve based on its current direction.
      * The curve moves forward by a fixed step size.
      */
@@ -145,32 +173,6 @@ public class Curve {
         }
 
         return isGapActive && continueGap();
-    }
-
-    /**
-     * Starts a new gap by updating the gap interval and resetting the gap length counter.
-     */
-    private void startNewGap(long currentTime) {
-        isGapActive = true;
-        lastGapTimestamp = currentTime;
-        gapInterval = MIN_GAP_INTERVAL + (long) (Math.random() * (MAX_GAP_INTERVAL - MIN_GAP_INTERVAL));
-        gapLengthCounter = MIN_GAP_LENGTH + (int) (Math.random() * (MAX_GAP_LENGTH - MIN_GAP_LENGTH + 1));
-    }
-
-    /**
-     * Continues generating the current gap and decrements the gap length counter.
-     * If the counter reaches zero, the gap ends.
-     *
-     * @return {@code true} if the gap is still active; {@code false} otherwise.
-     */
-    private boolean continueGap() {
-        if (gapLengthCounter > 0) {
-            gapLengthCounter--;
-            return true;
-        } else {
-            isGapActive = false;
-            return false;
-        }
     }
 
     /**

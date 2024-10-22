@@ -11,46 +11,51 @@ import java.awt.event.ActionListener;
 /**
  * The {@code SettingsUI} class provides a graphical user interface for configuring game settings
  * in the Zatacka game. This includes selecting player colors, control keys, and speed settings.
- * The UI allows for up to 6 players to be configured.
+ * The UI allows for up to {@link #maxPlayers} players to be configured.
+ *
+ * <p>
+ * This class extends {@link JFrame} and implements {@link ActionListener} to handle user interactions
+ * for configuring player settings before starting the game.
+ * </p>
  *
  * @author Henning Steinberg (@drachenpapa)
  * @version 1.0
  */
 public class SettingsUI extends JFrame implements ActionListener {
 
-    /** The maximum number of players allowed in the game. */
-    protected final int maxPlayers = 6;
+    /** Array of buttons for selecting player colors. */
+    private final JButton[] colorButtons;
 
-    /** Array of buttons for selecting player colors and control buttons. */
-    protected JButton[] colorButtons, leftControlButtons, rightControlButtons;
-
-    /** Button to start the game and button to load default settings. */
-    protected JButton startButton, loadDefaultsButton;
+    /** Arrays of buttons for control keys. */
+    private final JButton[] leftControlButtons;
+    private final JButton[] rightControlButtons;
 
     /** Checkboxes to select players. */
-    protected JCheckBox[] playerCheckBoxes;
+    private final JCheckBox[] playerCheckBoxes;
 
-    /** Labels and spinner for speed control. */
-    protected JLabel allLabel, speedLabel, spacer1, spacer2;
-    protected JLabel[] playerLabels;
+    /** Labels for player names. */
+    private final JLabel[] playerLabels;
 
     /** Spinner for selecting the speed of the game. */
-    protected JSpinner speedSpinner;
+    private JSpinner speedSpinner;
 
     /** Text fields for entering player names. */
-    protected JTextField[] nameTextFields;
+    private final JTextField[] nameTextFields;
 
     /** Arrays to store control keys for players. */
-    protected char[] leftControlKeys;
-    protected char[] rightControlKeys;
-    protected char[] defaultRightControlKeys;
-    protected char[] defaultLeftControlKeys;
+    private final char[] leftControlKeys;
+    private final char[] rightControlKeys;
+    private final char[] defaultLeftControlKeys;
+    private final char[] defaultRightControlKeys;
 
-    /** Array to hold the players created based on the settings. */
-    protected Player[] players;
+    /** The maximum number of players allowed in the game. */
+    private final int maxPlayers = 6;
 
     /** Array of default colors for players. */
-    final Color[] defaultColors;
+    private final Color[] defaultColors;
+
+    /** Array to hold the players created based on the settings. */
+    private Player[] players;
 
     /**
      * Constructs a new {@code SettingsUI} and initializes the UI components.
@@ -64,7 +69,7 @@ public class SettingsUI extends JFrame implements ActionListener {
         nameTextFields = new JTextField[maxPlayers];
         leftControlButtons = new JButton[maxPlayers];
         rightControlButtons = new JButton[maxPlayers];
-        loadDefaultsButton = new JButton("Load Defaults");
+        JButton loadDefaultsButton = new JButton("Load Defaults");
 
         defaultColors = new Color[]{
                 new Color(255, 0, 0), new Color(0, 255, 0),
@@ -115,7 +120,7 @@ public class SettingsUI extends JFrame implements ActionListener {
         }
 
         playerCheckBoxes[maxPlayers] = new JCheckBox();
-        allLabel = new JLabel("All");
+        JLabel allLabel = new JLabel("All");
         allLabel.setPreferredSize(new Dimension(412, 25));
         loadDefaultsButton.setPreferredSize(new Dimension(120, 25));
 
@@ -125,6 +130,7 @@ public class SettingsUI extends JFrame implements ActionListener {
         mainPanel.add(loadDefaultsButton);
 
         loadDefaultPlayerSettings();
+
         for (int i = 0; i < maxPlayers; i++) {
             playerCheckBoxes[i].addActionListener(this);
             colorButtons[i].addActionListener(this);
@@ -138,19 +144,20 @@ public class SettingsUI extends JFrame implements ActionListener {
         JPanel speedPanel = createSpeedControl();
         mainPanel.add(speedPanel);
 
-        spacer1 = new JLabel("");
+        JLabel spacer1 = new JLabel("");
         spacer1.setPreferredSize(new Dimension(1000, 25));
         mainPanel.add(spacer1);
 
-        spacer2 = new JLabel("");
+        JLabel spacer2 = new JLabel("");
         spacer2.setPreferredSize(new Dimension(220, 25));
         mainPanel.add(spacer2);
 
-        startButton = new JButton("Start Game");
+        JButton startButton = new JButton("Start Game");
         startButton.addActionListener(this);
         startButton.setPreferredSize(new Dimension(120, 25));
 
         mainPanel.add(startButton);
+
         playerCheckBoxes[0].setEnabled(true);
         playerCheckBoxes[0].setSelected(true);
         enableRow(0);
@@ -163,28 +170,10 @@ public class SettingsUI extends JFrame implements ActionListener {
     }
 
     /**
-     * Creates and returns a panel for controlling the speed of the game.
-     *
-     * @return A JPanel containing the speed control components.
-     */
-    private JPanel createSpeedControl() {
-        JPanel speedPanel = new JPanel();
-        speedLabel = new JLabel("Speed Level:");
-        speedLabel.setPreferredSize(new Dimension(90, 25));
-
-        speedSpinner = new JSpinner(new SpinnerNumberModel(3, 1, 5, 1));
-        speedSpinner.setPreferredSize(new Dimension(40, 25));
-
-        speedPanel.add(speedLabel);
-        speedPanel.add(speedSpinner);
-        return speedPanel;
-    }
-
-    /**
      * Loads the default settings for the players, including names, colors, and control keys.
      * Disables all players initially except for the first two.
      */
-    public void loadDefaultPlayerSettings() {
+    private void loadDefaultPlayerSettings() {
         for (int i = 0; i < maxPlayers; i++) {
             playerCheckBoxes[i].setSelected(false);
             nameTextFields[i].setText("Player " + (i + 1));
@@ -206,11 +195,29 @@ public class SettingsUI extends JFrame implements ActionListener {
     }
 
     /**
+     * Creates and returns a panel for controlling the speed of the game.
+     *
+     * @return A {@link JPanel} containing the speed control components.
+     */
+    private JPanel createSpeedControl() {
+        JPanel speedPanel = new JPanel();
+        JLabel speedLabel = new JLabel("Speed Level:");
+        speedLabel.setPreferredSize(new Dimension(90, 25));
+
+        speedSpinner = new JSpinner(new SpinnerNumberModel(3, 1, 5, 1));
+        speedSpinner.setPreferredSize(new Dimension(40, 25));
+
+        speedPanel.add(speedLabel);
+        speedPanel.add(speedSpinner);
+        return speedPanel;
+    }
+
+    /**
      * Enables the UI components for a specific player, allowing them to be configured.
      *
      * @param playerIndex The index of the player whose UI components should be enabled.
      */
-    public void enableRow(int playerIndex) {
+    private void enableRow(int playerIndex) {
         playerLabels[playerIndex].setEnabled(true);
         nameTextFields[playerIndex].setEditable(true);
         colorButtons[playerIndex].setEnabled(true);
@@ -223,7 +230,7 @@ public class SettingsUI extends JFrame implements ActionListener {
      *
      * @param playerIndex The index of the player whose UI components should be disabled.
      */
-    public void disableRow(int playerIndex) {
+    private void disableRow(int playerIndex) {
         playerLabels[playerIndex].setEnabled(false);
         nameTextFields[playerIndex].setEditable(false);
         colorButtons[playerIndex].setEnabled(false);
@@ -232,10 +239,10 @@ public class SettingsUI extends JFrame implements ActionListener {
     }
 
     /**
-     * Generates an array of {@code Player} objects based on the selected settings in the UI.
-     * This method reads the player names, colors, and control keys and creates {@code Player} instances.
+     * Generates an array of {@link Player} objects based on the selected settings in the UI.
+     * This method reads the player names, colors, and control keys and creates {@link Player} instances.
      */
-    public void generatePlayers() {
+    private void generatePlayers() {
         int playerCount = 0;
         for (int i = 0; i < maxPlayers; i++) {
             if (playerCheckBoxes[i].isSelected()) {
@@ -254,26 +261,6 @@ public class SettingsUI extends JFrame implements ActionListener {
                 );
                 index++;
             }
-        }
-    }
-
-    /**
-     * Handles action events triggered by UI components.
-     * This includes starting the game, loading default settings, and responding to player configuration changes.
-     *
-     * @param e The action event triggered by a user interaction.
-     */
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("Start Game")) {
-            generatePlayers();
-
-            int speedLevel = (int) speedSpinner.getValue();
-            new GameEngine(players, speedLevel);
-        } else if (e.getActionCommand().equals("Load Defaults")) {
-            loadDefaultPlayerSettings();
-        } else {
-            handlePlayerActions(e);
         }
     }
 
@@ -320,6 +307,26 @@ public class SettingsUI extends JFrame implements ActionListener {
                     disableRow(i);
                 }
             }
+        }
+    }
+
+    /**
+     * Handles action events triggered by UI components.
+     * This includes starting the game, loading default settings, and responding to player configuration changes.
+     *
+     * @param e The action event triggered by a user interaction.
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getActionCommand().equals("Start Game")) {
+            generatePlayers();
+
+            int speedLevel = (int) speedSpinner.getValue();
+            new GameEngine(players, speedLevel);
+        } else if (e.getActionCommand().equals("Load Defaults")) {
+            loadDefaultPlayerSettings();
+        } else {
+            handlePlayerActions(e);
         }
     }
 }

@@ -191,7 +191,7 @@ public class SettingsUI extends JFrame implements ActionListener {
         playerCheckBoxes[1].setSelected(true);
         enableRow(1);
         playerCheckBoxes[maxPlayers].setSelected(false);
-        playerCheckBoxes[maxPlayers].setEnabled(false);
+        playerCheckBoxes[maxPlayers].setEnabled(true);
     }
 
     /**

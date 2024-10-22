@@ -65,8 +65,8 @@ public class Player {
      * @return A new Curve instance with random parameters.
      */
     private Curve createRandomCurve() {
-        int xPosition = (int) (Math.random() * GameEngine.SCREEN_WIDTH + 100);
-        int yPosition = (int) (Math.random() * GameEngine.SCREEN_HEIGHT + 100);
+        int xPosition = (int) (Math.random() * GameEngine.WINDOW_WIDTH + 100);
+        int yPosition = (int) (Math.random() * GameEngine.WINDOW_HEIGHT + 100);
         double direction = Math.random() * 360;
         int size = (int) (Math.random() * 10) + 1;
         return new Curve(xPosition, yPosition, direction, size);

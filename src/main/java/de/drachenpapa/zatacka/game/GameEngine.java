@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 /**
  * The GameEngine is responsible for managing the game loop, game state, and rendering
  * the game field along with the players' curves. It implements the core mechanics
- * of the game and interacts with the Player and Statistics classes to manage
+ * of the game and interacts with the {@link Player} and {@link Statistics} classes to manage
  * player actions and track scores.
  *
  * @author Henning Steinberg (@drachenpapa)
@@ -25,10 +25,10 @@ public class GameEngine extends JPanel implements Runnable {
     public static final int WINDOW_HEIGHT = 600;
 
     /** The width of the game field (the area where the game takes place). */
-    private final int PLAY_AREA_WIDTH = 676;
+    public static final int PLAY_AREA_WIDTH = 676;
 
     /** The height of the game field. */
-    private final int PLAY_AREA_HEIGHT = 594;
+    public static final int PLAY_AREA_HEIGHT = 594;
 
     /** A 2D boolean array representing the game field. Each cell stores whether part of a curve occupies that position. */
     private boolean[][] playAreaCells = new boolean[PLAY_AREA_HEIGHT][PLAY_AREA_WIDTH];
@@ -39,6 +39,9 @@ public class GameEngine extends JPanel implements Runnable {
 
     /** Statistics instance that tracks players' scores and status. */
     private final Statistics statistics;
+
+    /** Instance responsible for rendering game elements. */
+    private final GameRenderer gameRenderer;
 
     /** Flag to indicate if the next round should start. */
     private volatile boolean isReadyForNextRound = false;
@@ -71,6 +74,7 @@ public class GameEngine extends JPanel implements Runnable {
     public GameEngine(Player[] players, int speed) {
         this.players = players;
         this.statistics = new Statistics(players.length);
+        this.gameRenderer = new GameRenderer();
 
         setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         setBackground(Color.black);
@@ -105,9 +109,9 @@ public class GameEngine extends JPanel implements Runnable {
 
     /**
      * Starts the next round by resetting the game field and repositioning all
-     * players randomly.
+     * players randomly within the game area.
      */
-    public void resetGameForNextRound() {
+    private void resetGameForNextRound() {
         playAreaCells = new boolean[PLAY_AREA_HEIGHT][PLAY_AREA_WIDTH];
 
         for (Player player : players) {
@@ -129,7 +133,7 @@ public class GameEngine extends JPanel implements Runnable {
      * @param curve The curve of the player to check for collisions.
      * @return True if a collision occurred, false otherwise.
      */
-    public boolean isCollisionDetected(Curve curve) {
+    private boolean isCollisionDetected(Curve curve) {
         double x = curve.getXPosition();
         double y = curve.getYPosition();
         int boundary = 4;
@@ -159,7 +163,7 @@ public class GameEngine extends JPanel implements Runnable {
      * @param curve The player's curve to check.
      * @return True if the curve collides with another curve, false otherwise.
      */
-    public boolean detectCurveCollision(Curve curve) {
+    private boolean detectCurveCollision(Curve curve) {
         int x = curve.getXPosition();
         int y = curve.getYPosition();
         int size = 4;
@@ -191,17 +195,25 @@ public class GameEngine extends JPanel implements Runnable {
             } catch (InterruptedException ignored) {
             }
 
-            for (Player player : players) {
-                player.getCurve().move();
-
-                if (player.isLeftKeyPressed()) {
-                    player.getCurve().turnLeft();
-                } else if (player.isRightKeyPressed()) {
-                    player.getCurve().turnRight();
-                }
-            }
+            updateGameState();
 
             paintComponent(getGraphics());
+        }
+    }
+
+    /**
+     * Updates the game state by processing player movements and checking for collisions.
+     */
+    private void updateGameState() {
+        for (Player player : players) {
+            Curve curve = player.getCurve();
+            curve.move();
+
+            if (player.isLeftKeyPressed()) {
+                curve.turnLeft();
+            } else if (player.isRightKeyPressed()) {
+                curve.turnRight();
+            }
         }
     }
 
@@ -222,10 +234,10 @@ public class GameEngine extends JPanel implements Runnable {
             } catch (InterruptedException ignored) {
             }
         } else if (isGameOver) {
-            drawFinalStatistics(g);
+            gameRenderer.drawFinalStatistics(g, players, statistics);
             isGameOver = false;
         } else if (isGameStarted) {
-            drawGameField(g);
+            gameRenderer.drawGameField(g);
             drawScores(g);
             isGameStarted = false;
             isGameRunning = true;
@@ -235,31 +247,19 @@ public class GameEngine extends JPanel implements Runnable {
     }
 
     /**
-     * Draws the game field, which includes the game boundary and the area where
-     * the curves will be drawn.
-     *
-     * @param g The Graphics context to draw on.
-     */
-    public void drawGameField(Graphics g) {
-        g.setColor(Color.white);
-        g.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-        g.setColor(Color.black);
-        g.fillRect(3, 3, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
-    }
-
-    /**
      * Draws the curves of all players on the game field. It checks for collisions
      * and updates the game state accordingly.
      *
      * @param g The Graphics context to draw on.
      */
-    public void drawPlayerCurves(Graphics g) {
+    private void drawPlayerCurves(Graphics g) {
         for (int i = 0; i < players.length; i++) {
             Player player = players[i];
             Curve curve = player.getCurve();
+
             if (curve.isAlive() && !curve.isGeneratingGap()) {
                 g.setColor(player.getColor());
+
 
                 if (isCollisionDetected(curve)) {
                     curve.markAsDead();
@@ -283,48 +283,27 @@ public class GameEngine extends JPanel implements Runnable {
      *
      * @param g The Graphics context to draw on.
      */
-    public void drawScores(Graphics g) {
-        g.setColor(Color.gray);
-        g.fillRect(682, 3, 115, PLAY_AREA_HEIGHT);
-
-        int[] scores = statistics.getScores();
-
-        for (int i = 0; i < players.length; i++) {
-            g.setColor(players[i].getColor());
-            g.setFont(new Font("SANS_SERIF", Font.BOLD, 16));
-            g.drawString(players[i].getPlayerName(), 690, 30 + (i * 50));
-            g.drawString(scores[i] + " pts", 690, 50 + (i * 50));
-
-            if (scores[i] >= winningScore) {
-                isGameOver = true;
-                isGameRunning = false;
-            }
-        }
-
-        if (statistics.getAlivePlayerCount() == 1) {
-            isReadyForNextRound = true;
-        }
-    }
+     private void drawScores(Graphics g) {
+         gameRenderer.drawScores(g, players, statistics);
+         checkForGameEnd();
+     }
 
     /**
-     * Draws the final scores of all players when the game ends.
-     *
-     * @param g The Graphics context to draw on.
+     * Checks if the game has reached an end condition, either by score or by the
+     * elimination of all but one player. Updates the game state accordingly.
      */
-    public void drawFinalStatistics(Graphics g) {
-        int[] finalScores = statistics.getScores();
-        g.setColor(Color.black);
-        g.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+     private void checkForGameEnd() {
+         int[] scores = statistics.getScores();
 
-        g.setColor(Color.white);
-        g.setFont(new Font("SANS_SERIF", Font.BOLD, 72));
-        g.drawString("Final Scores", 200, 100);
-
-        for (int i = 0; i < players.length; i++) {
-            g.setColor(players[i].getColor());
-            g.setFont(new Font("SANS_SERIF", Font.BOLD, 36));
-            g.drawString(players[i].getPlayerName(), 200, 175 + (i * 75));
-            g.drawString(finalScores[i] + " pts", 500, 175 + (i * 75));
-        }
-    }
+         for (int i = 0; i < players.length; i++) {
+             if (scores[i] >= winningScore) {
+                 isGameOver = true;
+                 isGameRunning = false;
+                 break;
+             }
+         }
+         if (statistics.getAlivePlayerCount() == 1) {
+             isReadyForNextRound = true;
+         }
+     }
 }

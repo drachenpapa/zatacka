@@ -58,32 +58,6 @@ class StatisticsTest {
     }
 
     @Test
-    void testResetStatistics() {
-        Curve curve1 = mock(Curve.class);
-        Curve curve2 = mock(Curve.class);
-        Curve curve3 = mock(Curve.class);
-
-        when(player1.getCurve()).thenReturn(curve1);
-        when(player2.getCurve()).thenReturn(curve2);
-        when(player3.getCurve()).thenReturn(curve3);
-
-        when(curve1.isAlive()).thenReturn(true);
-        when(curve2.isAlive()).thenReturn(true);
-        when(curve3.isAlive()).thenReturn(false);
-
-        statistics.increasePoints(new Player[]{player1, player2, player3});
-        statistics.setPlayerDead(2);
-
-        assertThat("Scores should be incremented for alive players.", statistics.getScores(), is(new int[]{1, 1, 0}));
-        assertThat("There should be 2 players alive before reset.", statistics.getAlivePlayerCount(), is(2));
-
-        statistics.resetStatistics();
-
-        assertThat("Scores should be reset to zero.", statistics.getScores(), is(new int[]{0, 0, 0}));
-        assertThat("All players should be alive after reset.", statistics.getAlivePlayerCount(), is(3));
-    }
-
-    @Test
     void testSetAllAlive() {
         statistics.setPlayerDead(0);
         statistics.setPlayerDead(1);

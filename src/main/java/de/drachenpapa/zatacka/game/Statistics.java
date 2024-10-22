@@ -34,22 +34,11 @@ public class Statistics {
     }
 
     /**
-     * Increases the score of all players that are currently alive.
-     *
-     * @param players Array of {@link Player} objects representing the players.
+     * Resets all player scores to zero and marks all players as alive.
+     * This method is typically called at the beginning of a new game or round.
      */
-    public void increasePoints(Player[] players) {
-        for (int i = 0; i < players.length; i++) {
-            if (players[i].getCurve().isAlive()) {
-                scores[i]++;
-            }
-        }
-    }
-
-    /**
-     * Sets the status of all players to alive, typically called at the start of a new round.
-     */
-    public void setAllAlive() {
+    private void resetStatistics() {
+        Arrays.fill(scores, 0);
         Arrays.fill(playersAlive, true);
     }
 
@@ -58,7 +47,7 @@ public class Statistics {
      *
      * @return The count of players who are still alive.
      */
-    public int getAlivePlayerCount() {
+    int getAlivePlayerCount() {
         int aliveCount = 0;
         for (boolean alive : playersAlive) {
             if (alive) {
@@ -69,19 +58,31 @@ public class Statistics {
     }
 
     /**
+     * Sets the status of all players to alive, typically called at the start of a new round.
+     */
+    void setAllAlive() {
+        Arrays.fill(playersAlive, true);
+    }
+
+    /**
      * Marks a specific player as dead based on their index.
      *
      * @param playerIndex The index of the player to mark as dead.
      */
-    public void setPlayerDead(int playerIndex) {
+    void setPlayerDead(int playerIndex) {
         playersAlive[playerIndex] = false;
     }
 
     /**
-     * Resets all player scores to zero and marks all players as alive.
+     * Increases the score of all players that are currently alive.
+     *
+     * @param players Array of {@link Player} objects representing the players.
      */
-    public void resetStatistics() {
-        Arrays.fill(scores, 0);
-        Arrays.fill(playersAlive, true);
+    public void increasePoints(Player[] players) {
+        for (int i = 0; i < players.length; i++) {
+            if (players[i].getCurve().isAlive()) {
+                scores[i]++;
+            }
+        }
     }
 }

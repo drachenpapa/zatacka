@@ -6,6 +6,11 @@ import de.drachenpapa.zatacka.ui.SettingsUI;
  * The {@code ZatackaApplication} class serves as the entry point for the Zatacka game application.
  * It initializes the user interface for game settings and starts the application.
  *
+ * <p>
+ * This class is responsible for launching the game by displaying the {@link SettingsUI},
+ * where users can configure game options before starting the actual gameplay.
+ * </p>
+ *
  * @author Henning Steinberg (@drachenpapa)
  * @version 1.0
  */

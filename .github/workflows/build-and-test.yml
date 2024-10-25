@@ -11,7 +11,7 @@ jobs:
     name: Build project
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -19,7 +19,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
-      - name: Build
+      - name: Build project
         run: mvn -B package -DskipTests
 
   test:
@@ -27,7 +27,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
       - name: Set up JDK
         uses: actions/setup-java@v4

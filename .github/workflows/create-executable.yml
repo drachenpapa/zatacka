@@ -1,0 +1,32 @@
+name: Create executable file
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Run build script
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" != "windows-latest" ]; then
+            chmod +x ./scripts/build.sh
+          fi
+          ./scripts/build.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: zatacka-package-${{ matrix.os }}
+          path: ./dist

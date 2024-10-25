@@ -21,6 +21,7 @@ jobs:
           cache: 'maven'
       - name: Run build script
         shell: bash
+        working-directory: zatacka
         run: |
           if [ "${{ matrix.os }}" != "windows-latest" ]; then
             chmod +x ./scripts/build.sh
@@ -30,4 +31,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: zatacka-package-${{ matrix.os }}
-          path: ./dist
+          path: zatacka/dist

@@ -28,7 +28,7 @@ jobs:
           fi
           ./scripts/build.sh
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: zatacka-package-${{ matrix.os }}
           path: zatacka/dist

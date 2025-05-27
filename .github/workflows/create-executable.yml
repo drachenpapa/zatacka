@@ -10,8 +10,7 @@ jobs:
   build:
     strategy:
       matrix:
-#        os: [ubuntu-latest, macos-latest, windows-latest]
-        os: [windows-latest]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -24,14 +23,11 @@ jobs:
           cache: 'maven'
       - name: Run build script
         shell: bash
-        working-directory: zatacka
         run: |
-          if [ "${{ matrix.os }}" != "windows-latest" ]; then
-            chmod +x ./scripts/build.sh
-          fi
+          chmod +x ./scripts/build.sh
           ./scripts/build.sh
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: zatacka-package-${{ matrix.os }}
-          path: zatacka/dist
+          name: zatacka-${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'mac' || 'win' }}
+          path: dist/*

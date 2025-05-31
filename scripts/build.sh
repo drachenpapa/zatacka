@@ -2,7 +2,7 @@
 
 APP_NAME="Zatacka"
 MAIN_CLASS="de.drachenpapa.zatacka.ZatackaApplication"
-JAR_PATH="./target/zatacka-1.0-SNAPSHOT.jar"
+JAR_PATH="./target/zatacka-1.0.jar"
 ICON_PATH="./icon/icon.png"
 DIST_DIR="./dist"
 

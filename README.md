@@ -6,8 +6,6 @@
   <img src="https://img.shields.io/badge/renovate-enabled-brightgreen?logo=renovate&style=flat-square" alt="Renovate">
 </p>
 
----
-
 _Zatacka_ (also known as _Achtung, die Kurve!_, _Achtung_ or _Curve Fever_) is a multiplayer snake game where players
 leave a trail (curve) and try to outlast their opponents by avoiding collisions with their own and other players'
 curves.

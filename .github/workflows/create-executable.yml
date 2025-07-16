@@ -1,4 +1,4 @@
-name: Create executable file
+name: Create executable
 
 on:
   workflow_dispatch:

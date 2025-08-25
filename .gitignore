@@ -47,7 +47,6 @@ hiberfil.sys
 .fseventsd
 *.swp
 *.swo
-Icon?
 *.tags
 
 # Generated binary files

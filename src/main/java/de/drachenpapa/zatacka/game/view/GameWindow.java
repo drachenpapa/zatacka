@@ -19,6 +19,12 @@ public class GameWindow {
 
     GameWindow(GamePanel gamePanel, GameEngine gameEngine) {
         frame = new JFrame(GAME_TITLE);
+        try {
+            Image logo = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/logo.png"));
+            frame.setIconImage(logo);
+        } catch (Exception e) {
+            System.err.println("Logo not found: " + e.getMessage());
+        }
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(gamePanel);
         frame.pack();

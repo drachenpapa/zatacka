@@ -37,6 +37,10 @@ public class SettingsUI extends JFrame implements ActionListener {
         UIManager.put("Button.border", BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
         setTitle(GAME_TITLE);
+        try {
+            Image logo = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/logo.png"));
+            setIconImage(logo);
+        } catch (Exception ignored) { }
         JPanel mainPanel = new JPanel();
 
         defaultColors = new Color[]{

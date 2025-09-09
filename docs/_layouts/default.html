@@ -19,7 +19,9 @@
 </head>
 <body>
 <header>
-    <img src="{{ '/assets/banner.png' | relative_url }}" alt="Zatacka" style="height: 150px;"/>
+    <h1>
+        <img src="{{ '/assets/banner.png' | relative_url }}" alt="Zatacka" style="height: 150px;"/>
+    </h1>
     <nav>
         <a href="{{ '/' | relative_url }}" class="{% if page.url == '/' %}active{% endif %}">Overview</a>
         <a href="{{ '/gameplay.html' | relative_url }}" class="{% if page.url == '/gameplay.html' %}active{% endif %}">Gameplay</a>
